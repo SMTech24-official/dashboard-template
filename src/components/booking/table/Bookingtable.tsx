@@ -1,25 +1,33 @@
-import { Table, Button } from 'antd';
-import { ColumnsType } from 'antd/es/table';
 import { EyeOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Button, Table } from 'antd';
+import { ColumnsType } from 'antd/es/table';
+import { format } from 'date-fns';
 
-interface BookingData {
-    key: string;
+interface Booking {
+    id: string;
+    clinicianId: string;
+    date: Date;
+    startTime: Date;
+    endTime: Date;
     userName: string;
     phoneNumber: string;
-    email: string;
+    userEmail: string;
     message: string;
-    dateTime: string;
-    therapistName: string;
+    createdAt: Date;
+    updatedAt: Date;
+    clinician?: { // Optional nested clinician data
+        name: string;
+    };
 }
 
 interface BookingListTableProps {
-    data: BookingData[];
-    onView?: (record: BookingData) => void; // Callback for view action
+    data: Booking[];
+    onView?: (record: Booking) => void;
+    loading?: boolean;
 }
 
-const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView }) => {
-    const columns: ColumnsType<BookingData> = [
+const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView, loading }) => {
+    const columns: ColumnsType<Booking> = [
         {
             title: 'User Name',
             dataIndex: 'userName',
@@ -32,8 +40,8 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView }) => 
         },
         {
             title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
+            dataIndex: 'userEmail',
+            key: 'userEmail',
         },
         {
             title: 'Message',
@@ -46,15 +54,25 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView }) => 
             ),
         },
         {
-            title: 'Date & Time',
-            dataIndex: 'dateTime',
-            key: 'dateTime',
-            sorter: (a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime(),
+            title: 'Date',
+            dataIndex: 'date',
+            key: 'date',
+            render: (date: Date) => format(date, 'MMM dd, yyyy'),
+            sorter: (a, b) => a.date.getTime() - b.date.getTime(),
         },
         {
-            title: 'Therapist Name',
-            dataIndex: 'therapistName',
+            title: 'Time Slot',
+            key: 'timeSlot',
+            render: (_, record) => (
+                <span>
+                    {format(record.startTime, 'hh:mm a')} - {format(record.endTime, 'hh:mm a')}
+                </span>
+            ),
+        },
+        {
+            title: 'Therapist',
             key: 'therapistName',
+            render: (_, record) => record.clinician?.name || 'N/A',
         },
         {
             title: 'Action',
@@ -65,7 +83,7 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView }) => 
                 <Button
                     type="text"
                     icon={<EyeOutlined />}
-                    onClick={() => onView && onView(record)}
+                    onClick={() => onView?.(record)}
                     className="text-primary hover:text-primary/80"
                 >
                     View
@@ -76,19 +94,13 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView }) => 
 
     return (
         <div className="p-4 bg-white rounded-lg shadow-md">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Booking List</h2>
-                <Link to={"/dashboard/booking-list"} className="bg-primary/80 hover:bg-primary text-white rounded-full px-4 py-2">
-                    See All
-                </Link>
-            </div>
-
             <Table
                 columns={columns}
-                dataSource={data}
-                pagination={{ pageSize: 5 }}
+                dataSource={data.map(item => ({ ...item, key: item.id }))}
+                pagination={{ pageSize: 10 }}
                 scroll={{ x: 'max-content' }}
                 className="custom-table"
+                loading={loading}
             />
         </div>
     );

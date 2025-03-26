@@ -3,6 +3,7 @@ import DashboardLayout from "../components/layouts/Dashboard";
 import UnderConstruction from "../components/others/underConstructions";
 import SignInPage from "../components/signIn/SignIn";
 import Dashboard from "../pages/Dashboard";
+import BookingList from "../pages/BookingList";
 
 const RouterProvider: React.FC = () => {
     return (
@@ -11,7 +12,7 @@ const RouterProvider: React.FC = () => {
                 <Route path="/" element={<SignInPage />} />
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index={true} element={<Dashboard />} />
-                    <Route path="booking-list" element={<UnderConstruction name="Booking List" />} />
+                    <Route path="booking-list" element={<BookingList />} />
                     <Route index element={<UnderConstruction name="Service" />} />
                     <Route path="add-service" element={<UnderConstruction name="Add Service" />} />
                     <Route path="all-service" element={<UnderConstruction name="All Services" />} />
