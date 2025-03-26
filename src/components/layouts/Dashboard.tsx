@@ -77,8 +77,8 @@ const DashboardLayout = () => {
             href: '/dashboard/blog',
             icon: PiNewspaperThin,
             subItems: [
-                { name: 'Add Blogs', href: '/dashboard/blog/post1', icon: GoPlus },
-                { name: 'All Blogs', href: '/dashboard/blog/post2', icon: GiNewspaper },
+                { name: 'Add Blogs', href: '/dashboard/add-blog', icon: GoPlus },
+                { name: 'All Blogs', href: '/dashboard/all-blog', icon: GiNewspaper },
             ]
         },
     ];

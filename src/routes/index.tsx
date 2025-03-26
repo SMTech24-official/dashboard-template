@@ -2,8 +2,13 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import DashboardLayout from "../components/layouts/Dashboard";
 import UnderConstruction from "../components/others/underConstructions";
 import SignInPage from "../components/signIn/SignIn";
-import Dashboard from "../pages/Dashboard";
 import BookingList from "../pages/BookingList";
+import Dashboard from "../pages/Dashboard";
+import ServicesList from "../pages/ServicePage";
+import AddService from "../components/service/AddServices";
+import CliniciansTable from "../components/clinicians/CliniciansTable";
+import BlogPage from "../pages/Blog";
+import AddBlogs from "../components/blog/AddBlogs";
 
 const RouterProvider: React.FC = () => {
     return (
@@ -14,17 +19,17 @@ const RouterProvider: React.FC = () => {
                     <Route index={true} element={<Dashboard />} />
                     <Route path="booking-list" element={<BookingList />} />
                     <Route index element={<UnderConstruction name="Service" />} />
-                    <Route path="add-service" element={<UnderConstruction name="Add Service" />} />
-                    <Route path="all-service" element={<UnderConstruction name="All Services" />} />
+                    <Route path="add-service" element={<AddService />} />
+                    <Route path="all-service" element={<ServicesList />} />
                     <Route index element={<UnderConstruction name="Locations" />} />
                     <Route path="add-location" element={<UnderConstruction name="Add Location" />} />
                     <Route path="all-location" element={<UnderConstruction name="All Locations" />} />
                     <Route index element={<UnderConstruction name="Clinicians" />} />
                     <Route path="add-clinicians" element={<UnderConstruction name="Add Clinician" />} />
-                    <Route path="all-clinicians" element={<UnderConstruction name="All Clinicians" />} />
+                    <Route path="all-clinicians" element={<CliniciansTable />} />
                     <Route index element={<UnderConstruction name="Blog" />} />
-                    <Route path="post1" element={<UnderConstruction name="Add Blogs" />} />
-                    <Route path="post2" element={<UnderConstruction name="All Blogs" />} />
+                    <Route path="add-blog" element={<AddBlogs />} />
+                    <Route path="all-blog" element={<BlogPage />} />
                 </Route>
             </Routes>
         </Router>
