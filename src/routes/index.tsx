@@ -2,6 +2,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import DashboardLayout from "../components/layouts/Dashboard";
 import UnderConstruction from "../components/others/underConstructions";
 import SignInPage from "../components/signIn/SignIn";
+import Dashboard from "../pages/Dashboard";
 
 const RouterProvider: React.FC = () => {
     return (
@@ -9,7 +10,7 @@ const RouterProvider: React.FC = () => {
             <Routes>
                 <Route path="/" element={<SignInPage />} />
                 <Route path="/dashboard" element={<DashboardLayout />}>
-                    <Route index={true} element={<UnderConstruction name="Dashboard" />} />
+                    <Route index={true} element={<Dashboard />} />
                     <Route path="booking-list" element={<UnderConstruction name="Booking List" />} />
                     <Route index element={<UnderConstruction name="Service" />} />
                     <Route path="add-service" element={<UnderConstruction name="Add Service" />} />
