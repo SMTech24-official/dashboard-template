@@ -1,95 +1,55 @@
-import { DeleteOutlined, EditOutlined, EyeOutlined, LinkOutlined } from '@ant-design/icons';
-import { Button, Image, Popconfirm, Space, Table, Tag, message } from 'antd';
+import { DeleteOutlined, EditOutlined, LinkOutlined } from '@ant-design/icons';
+import { Button, Form, Image, message, Modal, Popconfirm, Space, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import React from 'react';
+import dayjs from 'dayjs';
+import React, { useState } from 'react';
 import { Clinicians } from '../../types/types';
+import EditClinician from './EditClinician';
+import { cliniciansData } from './fakedata';
 
-const cliniciansData: Clinicians[] = [
-    {
-        id: '1',
-        userId: 'user1',
-        email: 'jane.cooper@example.com',
-        name: 'Jane Cooper',
-        practice: 'Mindful Therapy',
-        image: 'https://randomuser.me/api/portraits/women/1.jpg',
-        qualifications: 'PhD, LPC',
-        descriptions: 'Specializes in cognitive behavioral therapy for adults',
-        about: '10 years of experience helping clients with anxiety and depression',
-        portfolioLink: 'https://portfolio.example.com/jane',
-        therapeuticMethods: ['CBT', 'Mindfulness'],
-        specialities: ['Anxiety', 'Depression'],
-        serviceTypes: ['Individual', 'Couples'],
-        agesServed: ['Adults', 'Teens'],
-        location: 'New York, NY',
-        availabilityDay: 'Monday-Friday',
-        availabilityTime: '9am-5pm',
-        telehealthOnly: false,
-        createdAt: new Date('2020-01-15'),
-        updatedAt: new Date('2023-05-20'),
-    },
-    {
-        id: '2',
-        userId: 'user1',
-        email: 'jane.cooper@example.com',
-        name: 'Jane Cooper',
-        practice: 'Mindful Therapy',
-        image: 'https://randomuser.me/api/portraits/women/1.jpg',
-        qualifications: 'PhD, LPC',
-        descriptions: 'Specializes in cognitive behavioral therapy for adults',
-        about: '10 years of experience helping clients with anxiety and depression',
-        portfolioLink: 'https://portfolio.example.com/jane',
-        therapeuticMethods: ['CBT', 'Mindfulness'],
-        specialities: ['Anxiety', 'Depression'],
-        serviceTypes: ['Individual', 'Couples'],
-        agesServed: ['Adults', 'Teens'],
-        location: 'New York, NY',
-        availabilityDay: 'Monday-Friday',
-        availabilityTime: '9am-5pm',
-        telehealthOnly: false,
-        createdAt: new Date('2020-01-15'),
-        updatedAt: new Date('2023-05-20'),
-    },
-    {
-        id: '3',
-        userId: 'user1',
-        email: 'jane.cooper@example.com',
-        name: 'Jane Cooper',
-        practice: 'Mindful Therapy',
-        image: 'https://randomuser.me/api/portraits/women/1.jpg',
-        qualifications: 'PhD, LPC',
-        descriptions: 'Specializes in cognitive behavioral therapy for adults',
-        about: '10 years of experience helping clients with anxiety and depression',
-        portfolioLink: 'https://portfolio.example.com/jane',
-        therapeuticMethods: ['CBT', 'Mindfulness'],
-        specialities: ['Anxiety', 'Depression'],
-        serviceTypes: ['Individual', 'Couples'],
-        agesServed: ['Adults', 'Teens'],
-        location: 'New York, NY',
-        availabilityDay: 'Monday-Friday',
-        availabilityTime: '9am-5pm',
-        telehealthOnly: false,
-        createdAt: new Date('2020-01-15'),
-        updatedAt: new Date('2023-05-20'),
-    },
-
-];
 
 const CliniciansTable: React.FC = () => {
-    const handleView = (record: Clinicians) => {
-        message.info(`Viewing ${record.name}'s profile`);
-        // Add your view logic here
-    };
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingClinician, setEditingClinician] = useState<Clinicians | null>(null);
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+
 
     const handleEdit = (record: Clinicians) => {
-        message.success(`Editing ${record.name}'s details`);
-        // Add your edit logic here
+        setEditingClinician(record);
+        form.setFieldsValue({
+            ...record,
+            createdAt: dayjs(record.createdAt),
+            updatedAt: dayjs(record.updatedAt)
+        });
+        setIsEditModalOpen(true);
     };
 
     const handleDelete = (record: Clinicians) => {
         message.success(`${record.name}'s record deleted`);
-        // Add your delete logic here
     };
 
+    const handleSave = async () => {
+        try {
+            setLoading(true);
+            const values = await form.validateFields();
+            console.log('Updated clinician:', values);
+            message.success(`${editingClinician?.name}'s details updated successfully`);
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error('Validation failed:', error);
+            message.error('Failed to update clinician');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setIsEditModalOpen(false);
+        form.resetFields();
+    };
+
+    // Fixed columns definition
     const columns: ColumnsType<Clinicians> = [
         {
             title: 'Image',
@@ -110,19 +70,19 @@ const CliniciansTable: React.FC = () => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a: Clinicians, b: Clinicians) => a.name.localeCompare(b.name),
+            sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
             title: 'Practice',
             dataIndex: 'practice',
             key: 'practice',
-            render: (practice: string | undefined) => practice || 'N/A',
+            render: (practice: string) => practice || 'N/A',
         },
         {
             title: 'Specialities',
             dataIndex: 'specialities',
             key: 'specialities',
-            render: (specialities: string[] | undefined) => (
+            render: (specialities: string[]) => (
                 <Space size={[0, 4]} wrap>
                     {specialities?.map(spec => (
                         <Tag key={spec} color="blue">{spec}</Tag>
@@ -134,13 +94,13 @@ const CliniciansTable: React.FC = () => {
             title: 'Qualifications',
             dataIndex: 'qualifications',
             key: 'qualifications',
-            render: (qualifications: string | undefined) => qualifications || 'N/A',
+            render: (qualifications: string) => qualifications || 'N/A',
         },
         {
             title: 'Portfolio',
             dataIndex: 'portfolioLink',
             key: 'portfolioLink',
-            render: (link: string | undefined) => link ? (
+            render: (link: string) => link ? (
                 <Button
                     type="link"
                     icon={<LinkOutlined />}
@@ -153,15 +113,9 @@ const CliniciansTable: React.FC = () => {
         {
             title: 'Action',
             key: 'action',
-            fixed: 'right' as const,
-            render: (_, record: Clinicians) => (
+            fixed: 'right',
+            render: (_, record) => (
                 <Space size="middle">
-                    <Button
-                        type="text"
-                        icon={<EyeOutlined />}
-                        onClick={() => handleView(record)}
-                        title="View Details"
-                    />
                     <Button
                         type="text"
                         icon={<EditOutlined />}
@@ -186,6 +140,7 @@ const CliniciansTable: React.FC = () => {
         },
     ];
 
+
     return (
         <div className='p-4 bg-white rounded-lg shadow-md'>
             <Table<Clinicians>
@@ -196,6 +151,25 @@ const CliniciansTable: React.FC = () => {
                 scroll={{ x: 'max-content' }}
                 className="custom-table"
             />
+
+            <Modal
+                title={<span className="text-xl font-semibold">Edit Clinician: {editingClinician?.name}</span>}
+                open={isEditModalOpen}
+                onOk={handleSave}
+                onCancel={handleCancel}
+                width={900}
+                confirmLoading={loading}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleSave} loading={loading}>
+                        Save Changes
+                    </Button>,
+                ]}
+            >
+                <EditClinician editingClinician={editingClinician} form={form} />
+            </Modal>
         </div>
     );
 };
