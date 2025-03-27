@@ -1,23 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { UploadFile } from 'antd';
+import {
+    Button,
+    Card,
+    Form,
+    Input,
+    message,
+    Space,
+    UploadFile
+} from 'antd';
 import JoditEditor from "jodit-react";
 import { useMemo, useRef, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { Blog } from '../../types/types';
 import UploadImages from '../uploadImages/UploadImages';
 
-
-
 const AddBlogs = () => {
     const [thumbnailFileList, setThumbnailFileList] = useState<UploadFile[]>([]);
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<Blog>()
-    const editor = useRef<any>(null);
     const [content, setContent] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const editor = useRef<any>(null);
+    const [form] = Form.useForm();
 
     const config = useMemo(
         () => ({
@@ -28,73 +29,83 @@ const AddBlogs = () => {
         []
     );
 
+    const handleSubmit = async () => {
+        try {
+            const formData = await form.validateFields();
+            setIsSubmitting(true);
 
+            const payload = new FormData();
+            Object.keys(formData).forEach((key) => {
+                const value = formData[key as keyof Blog];
+                if (value !== undefined && value !== null) {
+                    payload.append(key, value.toString()); // Convert values to strings
+                }
+            });
+            payload.append("description", content);
 
-    const [isSubmitting, setIsSubmitting] = useState(false)
-
-    const onSubmit: SubmitHandler<Blog> = async (data) => {
-        const formData = new FormData()
-        setIsSubmitting(true);
-
-        Object.keys(data).forEach((key) => {
-            const value = data[key as keyof Blog];
-            if (value !== undefined && value !== null) {
-                formData.append(key, value.toString()); // Ensure the value is a string
+            if (thumbnailFileList[0]?.originFileObj) {
+                payload.append("thumbnailImage", thumbnailFileList[0].originFileObj);
+            } else {
+                message.error("Thumbnail image is required!");
+                setIsSubmitting(false);
+                return; // Early exit if thumbnail is missing
             }
-        });
-        formData.append("description", content);
-        if (thumbnailFileList[0]?.originFileObj) {
-            formData.append("thumbnailImage", thumbnailFileList[0].originFileObj);
-        } else {
-            toast.error("Thumbnail image is required!");
-            return; // Early exit if thumbnail image is missing
+
+            // Perform form submission logic here
+            console.log("Payload submitted:", payload);
+            message.success("Blog submitted successfully!");
+        } catch (error) {
+            console.error(error)
+            message.error("Please fill out all required fields and try again.");
+        } finally {
+            setIsSubmitting(false);
         }
-    }
-
-
-
-
+    };
 
     return (
-        <div className=''>
-            <div className='mt-10'>
-                <UploadImages multiple={false} limit={1} fileList={thumbnailFileList} setFileList={setThumbnailFileList} title='Upload Thumbnail Images *' />
-                <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-10 ">
+        <div className="min-h-screen bg-gray-50 p-6">
+            <Card className="max-w-4xl mx-auto" bodyStyle={{ padding: 24 }}>
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    <UploadImages
+                        multiple={false}
+                        limit={1}
+                        fileList={thumbnailFileList}
+                        setFileList={setThumbnailFileList}
+                        title="Upload Thumbnail Image *"
+                    />
 
-                    <div className='focus-within:text-secondary transition-all duration-200'>
-                        <label htmlFor="title" className="block text-sm font-medium ">
-                            Title *
-                        </label>
-                        <input
-                            id="title"
-                            type="text"
-                            {...register("title", { required: "Title is required" })}
-                            className="mt-1 block w-full border-b transition-all duration-200 ring-0 outline-none border-black bg-transparent focus:border-secondary focus:ring-0 focus:outline-none focus:text-secondary input" />
-                        {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
-                    </div>
-                    <div>
-                        <JoditEditor
-                            ref={editor}
-                            value={content}
-                            config={config}
-                            onBlur={(newContent: any) => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
-                            onChange={(newContent: any) => setContent(newContent)}
-                        />
-                    </div>
-
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-full mt-4 flex justify-center py-2 px-4 bg-secondary text-white rounded-lg"
+                    <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                        <Form.Item
+                            label="Title"
+                            name="title"
+                            rules={[{ required: true, message: 'Title is required' }]}
                         >
-                            {isSubmitting ? "Submitting..." : "Add New Yacht"}
-                        </button>
-                    </div>
-                </form>
+                            <Input placeholder="Enter blog title" />
+                        </Form.Item>
 
+                        <Form.Item label="Detailed Description">
+                            <JoditEditor
+                                ref={editor}
+                                value={content}
+                                config={config}
+                                onBlur={(newContent: any) => setContent(newContent)}
+                                onChange={(newContent: any) => setContent(newContent)}
+                            />
+                        </Form.Item>
 
-            </div>
+                        <Form.Item>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                loading={isSubmitting}
+                                className="w-full mt-4"
+                            >
+                                {isSubmitting ? "Submitting..." : "Add New Blog"}
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </Space>
+            </Card>
         </div>
     );
 };

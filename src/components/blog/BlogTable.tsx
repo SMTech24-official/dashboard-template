@@ -2,10 +2,16 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Image, Popconfirm, Space, Table, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Blog } from '../../types/types';
+import { useNavigate } from 'react-router-dom';
 
 
 const BlogTable = ({ blogData }: { blogData: Blog[] }) => {
+
+    const navigate = useNavigate()
     const handleView = (record: Blog) => {
+        console.log(record);
+        navigate(`/blog/${record.title}`)
+
         message.info(`Viewing blog: ${record.title}`);
         // Add your view logic here
     };
@@ -42,7 +48,7 @@ const BlogTable = ({ blogData }: { blogData: Blog[] }) => {
                     style={{ objectFit: 'cover', borderRadius: 4 }}
                     alt="Blog cover"
                     fallback="https://via.placeholder.com/100x60"
-                    preview={false}
+                    preview={true}
                 />
             ),
         },
