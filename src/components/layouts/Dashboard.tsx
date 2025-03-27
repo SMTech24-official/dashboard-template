@@ -12,7 +12,7 @@ import { Outlet } from 'react-router';
 import SideBar from './navigationBar/SiderBar';
 import TopBar from './navigationBar/TopBar';
 import BreadCrumb from '../BreadCrumb';
-
+// import { FaUsers } from 'react-icons/fa';
 
 
 
@@ -58,11 +58,21 @@ const DashboardLayout = () => {
             name: 'Locations',
             href: '/dashboard/locations',
             icon: CiLocationOn,
-            subItems: [
-                { name: 'Add Location', href: '/dashboard/add-location', icon: MdOutlineAddLocationAlt },
-                { name: 'All Location', href: '/dashboard/all-location', icon: GrMapLocation },
-            ]
+            // subItems: [
+            //     { name: 'Add Location', href: '/dashboard/add-location', icon: MdOutlineAddLocationAlt },
+            //     { name: 'All Location', href: '/dashboard/all-location', icon: GrMapLocation },
+            // ]
         },
+        // {
+        //     name: 'Team',
+        //     href: '/dashboard/team',
+        //     icon: FaUsers,
+        //     subItems: [
+        //         { name: 'Add Members', href: '/dashboard/add-members', icon: GoPlus },
+        //         { name: 'All Members', href: '/dashboard/all-members', icon: FaUsers },
+        //     ]
+        // }
+        // ,
         {
             name: 'Our clinicians',
             href: '/dashboard/clinicians',
