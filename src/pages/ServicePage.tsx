@@ -45,13 +45,16 @@ const fakeTherapistServices: Service[] = [
 
 const ServicesList: React.FC = () => {
     const [services, setServices] = useState<Service[]>(fakeTherapistServices);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
     const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
 
-    const handleEdit = (id: string) => {
-        setEditingServiceId(id);
-        setIsModalVisible(true);
+    const onEdit = async (id: string, values: Partial<Service>) => {
+        console.log('Service ID to edit:', id);
+        console.log('Updated values:', values);
+
+        // Simulating an update process
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Fake delay for demo
+
+        console.log('Service updated successfully!');
     };
 
     const handleDelete = (id: string) => {
@@ -68,8 +71,8 @@ const ServicesList: React.FC = () => {
                     <ServiceCard
                         key={service.id}
                         service={service}
-                        onEdit={handleEdit}
-                        onDelete={() => handleDelete(service.id)}
+                        onEdit={onEdit}
+                        onDelete={() => setDeletingServiceId(service.id)}
                     />
                 ))}
             </div>
@@ -89,22 +92,6 @@ const ServicesList: React.FC = () => {
                 okButtonProps={{ danger: true }}
             >
                 <p>Are you sure you want to delete this service? This action cannot be undone.</p>
-            </Modal>
-
-            {/* Add/Edit Service Modal */}
-            <Modal
-                title={editingServiceId ? 'Edit Service' : 'Add New Service'}
-                visible={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
-                footer={null}
-                width={800}
-                destroyOnClose
-            >
-                {/* <ServiceForm
-                    service={editingServiceId ? services.find(s => s.id === editingServiceId) : undefined}
-                    onSave={handleSave}
-                    onCancel={() => setIsModalVisible(false)}
-                /> */}
             </Modal>
         </div>
     );

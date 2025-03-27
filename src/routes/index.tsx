@@ -9,6 +9,7 @@ import AddService from "../components/service/AddServices";
 import CliniciansTable from "../components/clinicians/CliniciansTable";
 import BlogPage from "../pages/Blog";
 import AddBlogs from "../components/blog/AddBlogs";
+import BlogDetails from "../pages/BlogDetails";
 
 const RouterProvider: React.FC = () => {
     return (
@@ -29,6 +30,7 @@ const RouterProvider: React.FC = () => {
                     <Route path="all-clinicians" element={<CliniciansTable />} />
                     <Route index element={<UnderConstruction name="Blog" />} />
                     <Route path="add-blog" element={<AddBlogs />} />
+                    <Route path="blog/:id" element={<BlogDetails />} />
                     <Route path="all-blog" element={<BlogPage />} />
                 </Route>
             </Routes>

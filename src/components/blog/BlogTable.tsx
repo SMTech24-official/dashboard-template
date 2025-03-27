@@ -1,29 +1,56 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { Button, Image, Popconfirm, Space, Table, Tag, message } from 'antd';
+import { Button, Image, Popconfirm, Space, Table, Tag, message, Modal, Form, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Blog } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
-
+import { useState } from 'react';
+import TextArea from 'antd/es/input/TextArea';
 
 const BlogTable = ({ blogData }: { blogData: Blog[] }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+    const [form] = Form.useForm();
+    const navigate = useNavigate();
 
-    const navigate = useNavigate()
     const handleView = (record: Blog) => {
         console.log(record);
-        navigate(`/blog/${record.title}`)
-
+        navigate(`/dashboard/blog/${record.title}`);
         message.info(`Viewing blog: ${record.title}`);
-        // Add your view logic here
     };
 
     const handleEdit = (record: Blog) => {
-        message.success(`Editing blog: ${record.title}`);
-        // Add your edit logic here
+        setEditingBlog(record);
+        form.setFieldsValue({
+            title: record.title,
+            descriptions: record.descriptions,
+            image: record.image,
+            // Add other fields as needed
+        });
+        setIsModalOpen(true);
     };
 
     const handleDelete = (record: Blog) => {
         message.success(`Deleted blog: ${record.title}`);
         // Add your delete logic here
+    };
+
+    const handleOk = () => {
+        form.validateFields()
+            .then(values => {
+                // Here you would typically call an API to update the blog
+                console.log('Updated values:', values);
+                message.success('Blog updated successfully');
+                setIsModalOpen(false);
+                form.resetFields();
+            })
+            .catch(info => {
+                console.log('Validate Failed:', info);
+            });
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        form.resetFields();
     };
 
     const formatDate = (date: Date) => {
@@ -139,6 +166,66 @@ const BlogTable = ({ blogData }: { blogData: Blog[] }) => {
                 scroll={{ x: 'max-content' }}
                 className="custom-table"
             />
+
+            <Modal
+                title={`Edit Blog: ${editingBlog?.title}`}
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                width={800}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleOk}>
+                        Save Changes
+                    </Button>,
+                ]}
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    initialValues={editingBlog || {}}
+                >
+                    <Form.Item
+                        name="title"
+                        label="Title"
+                        rules={[{ required: true, message: 'Please input the blog title!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="descriptions"
+                        label="Description"
+                        rules={[{ required: true, message: 'Please input the blog description!' }]}
+                    >
+                        <TextArea rows={4} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="image"
+                        label="Image URL"
+                        rules={[{ required: true, message: 'Please input the image URL!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    {/* Add more fields as needed for your blog */}
+                </Form>
+
+                {editingBlog?.image && (
+                    <div className="mt-4">
+                        <p>Current Image:</p>
+                        <Image
+                            src={editingBlog.image}
+                            width={200}
+                            style={{ objectFit: 'cover', borderRadius: 4 }}
+                            alt="Current blog cover"
+                        />
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };
