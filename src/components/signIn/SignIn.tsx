@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -5,6 +6,11 @@ import { LuEye, LuEyeOff } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as z from "zod";
+import { useLoginMutation } from "../../Redux/apis/auth/authApi";
+import { useAppDispatch } from "../../Redux/hook";
+import { setUser } from "../../Redux/slice/auth/authSlice";
+import Cookies from "js-cookie"
+import { jwtDecode } from "jwt-decode";
 
 // Define Zod schema for validation
 const formSchema = z.object({
@@ -19,8 +25,12 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function SignInPage() {
+    const [isLoading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate()
+    const [login] = useLoginMutation()
+    const dispatch = useAppDispatch()
+
     // Use React Hook Form with Zod resolver
     const {
         register,
@@ -35,17 +45,32 @@ export default function SignInPage() {
         },
     });
 
-    const onSubmit = (data: FormValues) => {
-        console.log("Form Data:", data);
-        const promise = () => new Promise((resolve) => setTimeout(() => resolve({ name: 'Sonner' }), 2000));
+    const onSubmit = async (data: FormValues) => {
+        // console.log(data, 'data');
+        setIsLoading(true)
+        try {
+            // Call the login mutation
+            const response = await login(data).unwrap()
 
-        toast.promise(promise, {
-            loading: 'Loading...',
-            success: () => {
-                return `WellCome back admin`;
-            },
-            error: 'Error',
-        });
+            // Handle successful login (store token, redirect, etc.)
+
+            if (response?.data.accessToken) {
+                Cookies.set('token', response?.data.accessToken)
+                const decodedUser = jwtDecode(response.data.accessToken as string) as { role: string };
+                console.log(decodedUser, 'decodedUser');
+                dispatch(setUser({ user:decodedUser, token: response.data.accessToken })); // Store user in Redux
+                toast.success(`Welcome ${decodedUser.role} Dashboard!`);
+                navigate("/")
+            }
+
+            // toast.success("User Logged In Succes")
+
+        } catch (error: any) {
+            toast.error(error.data.message)
+            // Handle errors (e.g., display an error message)
+        } finally {
+            setIsLoading(false)
+        }
         navigate("/dashboard")
     };
 
@@ -108,7 +133,7 @@ export default function SignInPage() {
                         type="submit"
                         className="w-full cursor-pointer bg-primary/80 text-white py-2 px-4 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     >
-                        Log in
+                        {isLoading ? "Logging in..." : "Log In"}
                     </button>
                 </form>
             </div>

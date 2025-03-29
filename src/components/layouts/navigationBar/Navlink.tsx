@@ -1,8 +1,12 @@
 import { useState } from "react"; // Import useState for managing dropdown state
 import { IoLogOut } from "react-icons/io5";
 import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from "react-icons/md";
-import { Link, useLocation } from "react-router-dom"; // Use react-router-dom instead of react-router
+import { Link, useLocation, useNavigate } from "react-router-dom"; // Use react-router-dom instead of react-router
 import type { NavLink } from "../types";
+import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
+import { logout, selectCurrentUser } from "../../../Redux/slice/auth/authSlice";
+import Cookies from "js-cookie"
+import { toast } from "sonner";
 
 interface MainNavLinkProps {
     navLink: NavLink[];
@@ -16,6 +20,12 @@ export default function MainNavLink({
     const location = useLocation();
     const [openDropdown, setOpenDropdown] = useState<string | null>(null); // Track which dropdown is open
 
+
+    const user = useAppSelector(selectCurrentUser)
+    const dispatch = useAppDispatch()
+    const navigate = useNavigate();
+
+    console.log(user, 'user');
     // Check if a link is active
     const isActive = (href: string) => {
         const cleanHref = href.split("?")[0];
@@ -35,8 +45,11 @@ export default function MainNavLink({
 
     // Handle logout
     const handleLogout = async () => {
-        // Add your logout logic here
-        console.log("Logging out...");
+        dispatch(logout());
+        Cookies.remove('token');
+        Cookies.remove('refreshToken');
+        toast.success("Logged Out Successfully");
+        navigate("/");
     };
 
     // Toggle dropdown
