@@ -1,8 +1,8 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Card, message, Modal, Form, Input, Button } from 'antd';
+import { Card, message, Modal, Form,  } from 'antd';
 import React, { useState } from 'react';
 import { Service } from '../../types/types';
-import TextArea from 'antd/es/input/TextArea';
+import EditService from './EditService';
 
 interface ServiceCardProps {
     service: Service;
@@ -29,7 +29,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
 
     const handleDelete = () => {
         onDelete(service.id);
-        message.success('Service deleted successfully');
     };
 
     const handleSave = async () => {
@@ -94,7 +93,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
                 <div className="flex flex-col">
                     <div className="flex items-start mb-4">
                         {service.icon && (
-                            <div className="text-4xl mr-4 flex-shrink-0">{service.icon}</div>
+                            // <div className="text-4xl mr-4 flex-shrink-0">{service.icon}</div>
+                            <img src={service.icon} alt="service icon" className="text-4xl mr-4 flex-shrink-0 w-20 h-20 rounded-full" />
                         )}
                         <div className="flex-grow">
                             <h3 className="text-lg font-semibold text-gray-800">{service.title}</h3>
@@ -112,55 +112,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
                 onOk={handleSave}
                 onCancel={handleCancelEdit}
                 width={700}
-                footer={[
-                    <Button key="back" onClick={handleCancelEdit}>
-                        Cancel
-                    </Button>,
-                    <Button
-                        key="submit"
-                        type="primary"
-                        onClick={handleSave}
-                    >
-                        Save Changes
-                    </Button>,
-                ]}
+               
             >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    initialValues={service}
-                >
-                    <Form.Item
-                        name="title"
-                        label="Title"
-                        rules={[{ required: true, message: 'Please input the service title!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="subtitle"
-                        label="Subtitle"
-                        rules={[{ required: true, message: 'Please input the service subtitle!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="descriptions"
-                        label="Description"
-                        rules={[{ required: true, message: 'Please input the service description!' }]}
-                    >
-                        <TextArea rows={4} />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="icon"
-                        label="Icon (Emoji or Icon Code)"
-                    >
-                        <Input />
-                    </Form.Item>
-                </Form>
+              <EditService service={service} 
+                    onSave={handleSave} 
+                    loading={loading}
+                    onCancel={handleCancelEdit}/>
             </Modal>
 
             {/* Confirmation Modal */}

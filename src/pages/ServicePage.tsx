@@ -1,73 +1,52 @@
-import { Modal, message } from 'antd';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {  Modal, } from 'antd';
 import React, { useState } from 'react';
 import ServiceCard from '../components/service/ServiceCard';
 import { Service } from '../types/types';
-
-const fakeTherapistServices: Service[] = [
-    {
-        id: '1',
-        title: 'Individual Therapy',
-        subtitle: 'One-on-one counseling sessions',
-        descriptions: 'Personalized therapy to help you navigate anxiety, depression, and personal challenges.',
-        icon: '🧠',
-        createdAt: new Date('2023-01-15'),
-        updatedAt: new Date('2023-01-15'),
-    },
-    {
-        id: '2',
-        title: 'Couples Therapy',
-        subtitle: 'Improving relationships and communication',
-        descriptions: 'Strengthen your bond through guided communication and conflict resolution strategies.',
-        icon: '❤️',
-        createdAt: new Date('2023-02-20'),
-        updatedAt: new Date('2023-03-10'),
-    },
-    {
-        id: '3',
-        title: 'Group Therapy',
-        subtitle: 'Support in a group setting',
-        descriptions: 'Participate in group therapy sessions to share experiences and gain mutual support.',
-        icon: '👥',
-        createdAt: new Date('2023-03-05'),
-        updatedAt: new Date('2023-04-12'),
-    },
-    {
-        id: '4',
-        title: 'Child and Adolescent Therapy',
-        subtitle: 'Therapy for children and teens',
-        descriptions: 'Helping young individuals manage emotional and behavioral challenges in a safe environment.',
-        icon: '🧸',
-        createdAt: new Date('2023-04-18'),
-        updatedAt: new Date('2023-05-22'),
-    },
-];
+import { useDeleteServiceMutation, useGetAllServiceQuery, useUpdateServiceMutation } from '../Redux/apis/service.ts/serviceApi';
+import { toast } from 'sonner';
 
 
 const ServicesList: React.FC = () => {
-    const [services, setServices] = useState<Service[]>(fakeTherapistServices);
+    // const [services, setServices] = useState<Service[]>(fakeTherapistServices);
     const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
 
+    const { data, isLoading } = useGetAllServiceQuery('')
+    const [updateService] = useUpdateServiceMutation()
+    const [deleteService] = useDeleteServiceMutation()
+    console.log(data?.data, 'data');
+
     const onEdit = async (id: string, values: Partial<Service>) => {
-        console.log('Service ID to edit:', id);
-        console.log('Updated values:', values);
-
-        // Simulating an update process
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Fake delay for demo
-
-        console.log('Service updated successfully!');
+        console.log(values, 'values');
+        try {
+            const res = await updateService({ id, body: values })
+            console.log(res)
+            toast.message(res.data.message || 'Service updated successfully');
+            await new Promise((resolve) => setTimeout(resolve, 1000)); 
+        } catch (error) {
+            console.log(error)
+        }
     };
 
-    const handleDelete = (id: string) => {
-        setServices(services.filter(service => service.id !== id));
-        message.success('Service deleted successfully');
-        setDeletingServiceId(null);
+    const handleDelete = async (id: string) => {
+        console.log('Service ID to delete:', id);
+        try {
+            const res = await deleteService(id)
+            console.log(res)
+            toast.success('Service deleted successfully');
+        } catch (error: any) {
+            toast.error(error.data.message || 'Failed to delete service');
+        }
     };
 
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="container ">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map(service => (
+                {data?.data.map((service: Service) => (
                     <ServiceCard
                         key={service.id}
                         service={service}

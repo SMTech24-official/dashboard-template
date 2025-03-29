@@ -60,7 +60,7 @@ export default function SignInPage() {
                 console.log(decodedUser, 'decodedUser');
                 dispatch(setUser({ user:decodedUser, token: response.data.accessToken })); // Store user in Redux
                 toast.success(`Welcome ${decodedUser.role} Dashboard!`);
-                navigate("/")
+                navigate("/dashboard")
             }
 
             // toast.success("User Logged In Succes")
@@ -71,7 +71,7 @@ export default function SignInPage() {
         } finally {
             setIsLoading(false)
         }
-        navigate("/dashboard")
+        
     };
 
     const togglePasswordVisibility = () => {

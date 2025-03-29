@@ -1,7 +1,7 @@
 import { useState } from "react"; // Import useState for managing dropdown state
 import { IoLogOut } from "react-icons/io5";
 import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from "react-icons/md";
-import { Link, useLocation, useNavigate } from "react-router-dom"; // Use react-router-dom instead of react-router
+import { Link, useLocation, useNavigate } from "react-router-dom"; 
 import type { NavLink } from "../types";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hook";
 import { logout, selectCurrentUser } from "../../../Redux/slice/auth/authSlice";
@@ -57,7 +57,7 @@ export default function MainNavLink({
         setOpenDropdown((prev) => (prev === name ? null : name));
     };
 
-    // Render navigation links with dropdown support
+
     const renderNavLink = (link: NavLink) => {
         const hasSubItems = link.subItems && link.subItems.length > 0;
 
