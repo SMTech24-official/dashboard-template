@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Card, message, Modal, Form,  } from 'antd';
+import { Card, message, Modal, Form, Button } from 'antd';
 import React, { useState } from 'react';
 import { Service } from '../../types/types';
 import EditService from './EditService';
@@ -94,7 +94,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
                     <div className="flex items-start mb-4">
                         {service.icon && (
                             // <div className="text-4xl mr-4 flex-shrink-0">{service.icon}</div>
-                            <img src={service.icon} alt="service icon" className="text-4xl mr-4 flex-shrink-0 w-20 h-20 rounded-full" />
+                            <img src={service.icon} alt="service icon" className="text-4xl mr-4 flex-shrink-0 w-20 h-20 rounded-full"  />
                         )}
                         <div className="flex-grow">
                             <h3 className="text-lg font-semibold text-gray-800">{service.title}</h3>
@@ -112,12 +112,25 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
                 onOk={handleSave}
                 onCancel={handleCancelEdit}
                 width={700}
-               
+                footer={[
+                    <Button key="back" onClick={handleCancelEdit}>
+                        Cancel
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        onClick={handleSave}
+                    >
+                        Save Changes
+                    </Button>,
+                ]}
             >
-              <EditService service={service} 
+                <EditService 
+                    service={service} 
                     onSave={handleSave} 
                     loading={loading}
-                    onCancel={handleCancelEdit}/>
+                    onCancel={() => setIsEditModalOpen(false)}
+                />
             </Modal>
 
             {/* Confirmation Modal */}
