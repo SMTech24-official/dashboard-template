@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message, Modal, Space, Table } from 'antd';
 import { useState } from 'react';
@@ -128,7 +129,7 @@ const LocationManagement = () => {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState(null);
+    const [currentRecord, setCurrentRecord] = useState<any | null>(null);
     const [form] = Form.useForm();
     const [editForm] = Form.useForm();
 
@@ -142,18 +143,18 @@ const LocationManagement = () => {
             title: 'Created At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (text) => new Date(text).toLocaleString(),
+            render: (text: Date) => new Date(text).toLocaleString(),
         },
         {
             title: 'Updated At',
             dataIndex: 'updatedAt',
             key: 'updatedAt',
-            render: (text) => new Date(text).toLocaleString(),
+            render: (text: Date) => new Date(text).toLocaleString(),
         },
         {
             title: 'Actions',
             key: 'actions',
-            render: (_, record) => (
+            render: (_: any, record: any) => (
                 <Space size="middle">
                     <Button
                         type="primary"
@@ -203,7 +204,7 @@ const LocationManagement = () => {
         setIsModalVisible(false);
     };
 
-    const handleEdit = (record) => {
+    const handleEdit = (record: any) => {
         setCurrentRecord(record);
         editForm.setFieldsValue({
             location: record.location,
@@ -214,9 +215,9 @@ const LocationManagement = () => {
     const handleEditOk = () => {
         editForm
             .validateFields()
-            .then((values) => {
+            .then((values: any) => {
                 const updatedLocations = locations.map((item) =>
-                    item.id === currentRecord.id
+                    item.id === currentRecord?.id
                         ? {
                             ...item,
                             location: values.location,
@@ -239,7 +240,7 @@ const LocationManagement = () => {
         setIsEditModalVisible(false);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = (id: string) => {
         Modal.confirm({
             title: 'Are you sure you want to delete this location?',
             content: 'This action cannot be undone',
