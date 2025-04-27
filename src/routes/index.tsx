@@ -11,6 +11,7 @@ import BlogPage from "../pages/Blog";
 import AddBlogs from "../components/blog/AddBlogs";
 import BlogDetails from "../pages/BlogDetails";
 import LocationManagement from "../components/location/LocationTable";
+import AddCliniciansTable from "../components/clinicians/AddCliniciansTable";
 
 const RouterProvider: React.FC = () => {
     return (
@@ -29,8 +30,8 @@ const RouterProvider: React.FC = () => {
                     {/* <Route index element={<UnderConstruction name="Teams" />} />
                     <Route path="add-members" element={<UnderConstruction name="Add members" />} />
                     <Route path="all-members" element={<UnderConstruction name="All memberss" />} /> */}
-                    <Route index element={<UnderConstruction name="Clinicians" />} />
-                    <Route path="add-clinicians" element={<UnderConstruction name="Add Clinician" />} />
+                    <Route index element={<UnderConstruction name="Clinician" />} />
+                    <Route path="add-clinicians" element={<AddCliniciansTable />} />
                     <Route path="all-clinicians" element={<CliniciansTable />} />
                     <Route index element={<UnderConstruction name="Blog" />} />
                     <Route path="add-blog" element={<AddBlogs />} />

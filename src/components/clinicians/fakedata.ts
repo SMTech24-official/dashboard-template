@@ -1,6 +1,6 @@
-import { Clinicians } from "../../types/types";
+import { Clinician } from "../../types/types";
 
-export const cliniciansData: Clinicians[] = [
+export const cliniciansData: Clinician[] = [
   {
     id: "1",
     userId: "user1",

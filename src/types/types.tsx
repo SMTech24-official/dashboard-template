@@ -13,7 +13,6 @@ export enum UserStatus {
 // User Interface
 export interface User {
     id: string;
-    name: string;
     email: string;
     password: string;
     role: UserRole;
@@ -24,11 +23,11 @@ export interface User {
     otpExpiry?: Date;
     createdAt: Date;
     updatedAt: Date;
-    Clinicians?: Clinicians;
+    Clinician?: Clinician;
 }
 
-// Clinicians Interface
-export interface Clinicians {
+// Clinician Interface
+export interface Clinician {
     id: string;
     userId: string;
     email: string;
@@ -39,16 +38,19 @@ export interface Clinicians {
     descriptions?: string;
     about?: string;
     portfolioLink?: string;
-    therapeuticMethods: string[];
-    specialities: string[];
-    serviceTypes: string[];
-    agesServed: string[];
+    therapeuticMethods: string;
+    specialities: string;
+    serviceTypes: string;
+    agesServed: string;
     location?: string;
     availabilityDay?: string;
     availabilityTime?: string;
     telehealthOnly?: boolean;
+    isCalendarConnected: boolean;
+    googleRefreshToken?: string;
     createdAt: Date;
     updatedAt: Date;
+    Booking: Booking[];
 }
 
 // Service Interface
@@ -78,6 +80,7 @@ export interface Blog {
 export interface Booking {
     id: string;
     clinicianId: string;
+    googleEventId: string;
     date: Date;
     startTime: Date;
     endTime: Date;
@@ -85,8 +88,10 @@ export interface Booking {
     phoneNumber: string;
     userEmail: string;
     message: string;
+    timeZone: string;
     createdAt: Date;
     updatedAt: Date;
+    clinician?: Clinician;
 }
 
 // ContactUs Interface
@@ -99,3 +104,6 @@ export interface ContactUs {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type CustomInputEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+

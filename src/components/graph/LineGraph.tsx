@@ -7,7 +7,7 @@ interface LineGraphProps {
     selectedData: Array<{
         day: string;
         Booking: number;
-        Clinicians: number;
+        Clinician: number;
         Location: number;
         Services: number;
     }>;

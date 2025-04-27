@@ -3,19 +3,19 @@ import { Button, Form, Image, message, Modal, Popconfirm, Space, Table, Tag } fr
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
-import { Clinicians } from '../../types/types';
+import { Clinician } from '../../types/types';
 import EditClinician from './EditClinician';
 import { cliniciansData } from './fakedata';
 
 
 const CliniciansTable: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editingClinician, setEditingClinician] = useState<Clinicians | null>(null);
+    const [editingClinician, setEditingClinician] = useState<Clinician | null>(null);
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
 
-    const handleEdit = (record: Clinicians) => {
+    const handleEdit = (record: Clinician) => {
         setEditingClinician(record);
         form.setFieldsValue({
             ...record,
@@ -25,7 +25,7 @@ const CliniciansTable: React.FC = () => {
         setIsEditModalOpen(true);
     };
 
-    const handleDelete = (record: Clinicians) => {
+    const handleDelete = (record: Clinician) => {
         message.success(`${record.name}'s record deleted`);
     };
 
@@ -50,7 +50,7 @@ const CliniciansTable: React.FC = () => {
     };
 
     // Fixed columns definition
-    const columns: ColumnsType<Clinicians> = [
+    const columns: ColumnsType<Clinician> = [
         {
             title: 'Image',
             dataIndex: 'image',
@@ -143,7 +143,7 @@ const CliniciansTable: React.FC = () => {
 
     return (
         <div className='p-4 bg-white rounded-lg shadow-md'>
-            <Table<Clinicians>
+            <Table<Clinician>
                 columns={columns}
                 dataSource={cliniciansData}
                 rowKey="id"

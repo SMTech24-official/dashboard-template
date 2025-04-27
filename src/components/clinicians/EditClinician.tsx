@@ -3,14 +3,14 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Divider, Form, FormInstance, Image, Input, message, Select, Upload } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import dayjs from 'dayjs';
-import { Clinicians } from '../../types/types';
+import { Clinician } from '../../types/types';
 
 const { Option } = Select;
 
 
 
 
-const EditClinician = ({ editingClinician, form }: { editingClinician: Clinicians | null, form: FormInstance<any> }) => {
+const EditClinician = ({ editingClinician, form }: { editingClinician: Clinician | null, form: FormInstance<any> }) => {
 
     // Fixed upload props
     const uploadProps = {

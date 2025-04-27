@@ -22,7 +22,7 @@ const MetricCards: React.FC<MetricCardsProps> = ({
 }) => {
     const metrics = [
         { title: 'Total Booking', value: bookingCount, icon: <CalendarOutlined />, color: 'bg-blue-100' },
-        { title: 'Total Clinicians', value: cliniciansCount, icon: <TeamOutlined />, color: 'bg-green-100' },
+        { title: 'Total Clinician', value: cliniciansCount, icon: <TeamOutlined />, color: 'bg-green-100' },
         { title: 'Total Services', value: servicesCount, icon: <AppstoreOutlined />, color: 'bg-purple-100' },
         { title: 'Total Location', value: locationsCount, icon: <EnvironmentOutlined />, color: 'bg-orange-100' },
     ];
