@@ -58,10 +58,11 @@ const ExampleForm: React.FC = () => {
     try {
       // Assuming you have a mutation function that accepts both
       const result = await createClinician(formData);
-      console.log(result);
       if (result?.data) {
         toast.success("Clinician created successfully");
-        setClinicianInfo(null);
+        setClinicianInfo({});
+        setImageFile(null);
+        setImagePreviewUrl(null);
         return;
       } else if (result?.error) {
         const errorMessage = (
@@ -247,8 +248,9 @@ const ExampleForm: React.FC = () => {
       />
 
       <div className=" flex justify-center items-center">
-
-        <CustomButton isLoading={createClinicianLoading} type="submit">Create Clinician</CustomButton>
+        <CustomButton isLoading={createClinicianLoading} type="submit">
+          Create Clinician
+        </CustomButton>
       </div>
     </form>
   );

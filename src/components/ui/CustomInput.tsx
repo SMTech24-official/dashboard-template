@@ -43,7 +43,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   imagePreviewUrl,
   ...props
 }) => {
-  const baseInputClasses = `bg-secondary rounded border-gray-300 focus:border-blue-500 outline-none px-3 ${
+  const baseInputClasses = `bg-secondary rounded border-gray-300 focus:border-blue-500 my-2 outline-none px-3 ${
     type !== "radio" ? "py-4 px-1" : ""
   } ${fullWidth ? "w-full" : "w-1/2"} ${className}`;
 
@@ -123,21 +123,22 @@ const CustomInput: React.FC<CustomInputProps> = ({
         );
       case "image":
         return (
-          <div className="flex flex-col items-center">
-            {imagePreviewUrl && (
-              <img
-                src={imagePreviewUrl}
-                alt="Preview"
-                className="w-32 h-32 object-cover mb-2 rounded"
-              />
-            )}
-            <input
+          <div className="flex flex-col w-md">
+             <input
               type="file"
               accept="image/*"
               className={`${baseInputClasses} p-2`}
               onChange={handleImageChange}
               {...props}
             />
+            {imagePreviewUrl && (
+              <img
+                src={imagePreviewUrl}
+                alt="Preview"
+                className="w-32 h-32 object-cover mt-2 rounded"
+              />
+            )}
+           
           </div>
         );
       default:
