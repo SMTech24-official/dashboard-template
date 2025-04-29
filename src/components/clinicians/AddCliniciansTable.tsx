@@ -10,11 +10,47 @@ import CustomButton from "../ui/CustomButton";
 const ExampleForm: React.FC = () => {
   const [createClinician, { isLoading: createClinicianLoading }] =
     useCreateClinicianMutation();
-  const [clinicianInfo, setClinicianInfo] = useState<Partial<Clinician> | null>(
-    {}
-  );
+  const [clinicianInfo, setClinicianInfo] = useState<Partial<Clinician>>({
+    name: "",
+    email: "",
+    password: "",
+    practice: "",
+    portfolioLink: "",
+    qualifications: "",
+    therapeuticMethods: "",
+    specialities: "",
+    serviceTypes: "",
+    agesServed: "",
+    telehealthOnly: false,
+    availabilityDay: "",
+    availabilityTime: "",
+    descriptions: "",
+    about: "",
+  });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
+  const resetForm = () => {
+    setClinicianInfo({
+      name: "",
+      email: "",
+      password: "",
+      practice: "",
+      portfolioLink: "",
+      qualifications: "",
+      therapeuticMethods: "",
+      specialities: "",
+      serviceTypes: "",
+      agesServed: "",
+      telehealthOnly: false,
+      availabilityDay: "",
+      availabilityTime: "",
+      descriptions: "",
+      about: "",
+    });
+    setImageFile(null);
+    setImagePreviewUrl(null);
+  };
 
   const handleClinicianInfoChange = (event: CustomInputEvent) => {
     const { name, value } = event.target;
@@ -60,9 +96,7 @@ const ExampleForm: React.FC = () => {
       const result = await createClinician(formData);
       if (result?.data) {
         toast.success("Clinician created successfully");
-        setClinicianInfo({});
-        setImageFile(null);
-        setImagePreviewUrl(null);
+        resetForm();
         return;
       } else if (result?.error) {
         const errorMessage = (
@@ -101,6 +135,7 @@ const ExampleForm: React.FC = () => {
           placeholder="Enter Email"
           value={clinicianInfo?.email}
           label="Email:"
+          required
           type="email"
         />
         <CustomInput
@@ -183,7 +218,8 @@ const ExampleForm: React.FC = () => {
         fullWidth
       />
       <LocationSearch
-        setClinicianInfo={setClinicianInfo}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setClinicianInfo={setClinicianInfo as any}
         clinicianInfo={clinicianInfo}
       />
       <CustomInput
