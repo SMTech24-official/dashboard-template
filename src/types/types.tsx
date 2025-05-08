@@ -26,7 +26,26 @@ export interface User {
   Clinician?: Clinician;
 }
 
-// Clinician Interface
+export enum AvailabilityDay {
+  Monday = "Monday",
+  Tuesday = "Tuesday",
+  Wednesday = "Wednesday",
+  Thursday = "Thursday",
+  Friday = "Friday",
+  Saturday = "Saturday",
+  Sunday = "Sunday",
+  AnyDay = "AnyDay",
+}
+
+export enum AvailabilityTime {
+  Morning = "Morning",
+  Noon = "Noon",
+  Afternoon = "Afternoon",
+  Evening = "Evening",
+  Night = "Night",
+  AnyTime = "AnyTime",
+}
+
 export interface Clinician {
   id: string;
   userId: string;
@@ -46,8 +65,8 @@ export interface Clinician {
   location?: string;
   latitude?: number;
   longitude?: number;
-  availabilityDay?: string;
-  availabilityTime?: string;
+  availabilityDay?: AvailabilityDay[];
+  availabilityTime?: AvailabilityTime[];
   telehealthOnly?: boolean;
   isCalendarConnected: boolean;
   googleRefreshToken?: string;
