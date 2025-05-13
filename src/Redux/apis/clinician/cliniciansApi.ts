@@ -7,44 +7,43 @@ export const clinicianApi = baseApi.injectEndpoints({
         return {
           url: "/clinician/create",
           method: "POST",
-          body:data,
+          body: data,
         };
       },
-      invalidatesTags: ["Service"],
+      invalidatesTags: ["Clinician"],
     }),
-    getAllService: builder.query({
-      query: () => "/service/get-all",
-      providesTags: ["Service"],
-    }),
-
-    getServiceById: builder.query({
-      query: (id) => `/service/get-single/${id}`,
-      providesTags: ["Service"],
+    getAllClinician: builder.query({
+      query: () => "/clinician/get-all",
+      providesTags: ["Clinician"],
     }),
 
-    updateService: builder.mutation({
+    getClinicianById: builder.query({
+      query: (id) => `/clinician/get-single/${id}`,
+      providesTags: ["Clinician"],
+    }),
+
+    updateClinician: builder.mutation({
       query: ({ id, body }) => ({
-        url: `/service/update/${id}`,
-        method: "PUT",
+        url: `/clinician/update/${id}`,
+        method: "PATCH",
         body,
       }),
-      invalidatesTags: ["Service"],
+      invalidatesTags: ["Clinician"],
     }),
 
-    deleteService: builder.mutation({
+    deleteClinician: builder.mutation({
       query: (id) => ({
-        url: `/service/delete/${id}`,
+        url: `/clinician/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Service"],
+      invalidatesTags: ["Clinician"],
     }),
   }),
 });
 
 export const {
   useCreateClinicianMutation,
-  useGetAllServiceQuery,
-  useGetServiceByIdQuery,
-  useUpdateServiceMutation,
-  useDeleteServiceMutation,
+  useGetAllClinicianQuery,
+  useUpdateClinicianMutation,
+  useDeleteClinicianMutation,
 } = clinicianApi;
