@@ -81,8 +81,9 @@ export interface Service {
   title: string;
   subtitle: string;
   descriptions: string;
-  icon?: string;
-  image?: string;
+  detailedDescription: string;
+  icon?: string | File;
+  image?: string | File;
   createdAt: Date;
   updatedAt: Date;
 }
