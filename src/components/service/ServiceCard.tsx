@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Card, message, Modal, Form, Button } from "antd";
 import React, { useState } from "react";
