@@ -52,7 +52,7 @@ const BlogTable = ({
 
   const handleView = (record: Blog) => {
     console.log(record);
-    navigate(`/dashboard/blog/${record.title}`);
+    navigate(`/dashboard/blog/${record?.id}`);
     message.info(`Viewing blog: ${record.title}`);
   };
 
