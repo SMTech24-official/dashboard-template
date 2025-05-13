@@ -92,12 +92,12 @@ const ExampleForm: React.FC = () => {
   };
 
   const handleDayToggle = (day: string) => {
-    setClinicianInfo((prev:any) => {
+    setClinicianInfo((prev: any) => {
       const currentDays = prev.availabilityDay || [];
       const newDays = currentDays.includes(day)
-        ? currentDays.filter((d:any) => d !== day)
+        ? currentDays.filter((d: any) => d !== day)
         : [...currentDays, day];
-      
+
       // If "AnyDay" is selected, clear other days
       if (day === "AnyDay" && !currentDays.includes("AnyDay")) {
         return { ...prev, availabilityDay: ["AnyDay"] };
@@ -111,12 +111,12 @@ const ExampleForm: React.FC = () => {
   };
 
   const handleTimeToggle = (time: string) => {
-    setClinicianInfo((prev:any) => {
+    setClinicianInfo((prev: any) => {
       const currentTimes = prev.availabilityTime || [];
       const newTimes = currentTimes.includes(time)
-        ? currentTimes.filter((t:any) => t !== time)
+        ? currentTimes.filter((t: any) => t !== time)
         : [...currentTimes, time];
-      
+
       // If "AnyTime" is selected, clear other times
       if (time === "AnyTime" && !currentTimes.includes("AnyTime")) {
         return { ...prev, availabilityTime: ["AnyTime"] };
@@ -150,7 +150,7 @@ const ExampleForm: React.FC = () => {
       formData.append("image", imageFile);
     }
 
-            type TelehealthOption = boolean | "Yes" | "No";
+    type TelehealthOption = boolean | "Yes" | "No";
     // 2. Create a type-safe converter function
     function convertTelehealth(value: TelehealthOption | undefined): boolean {
       if (value === undefined) return false; // default value
@@ -291,12 +291,12 @@ const ExampleForm: React.FC = () => {
         onChange={(e) => handleClinicianInfoChange(e)}
         fullWidth
       />
-      
+
       <LocationSearch
         setClinicianInfo={setClinicianInfo as any}
         clinicianInfo={clinicianInfo}
       />
-      
+
       <CustomInput
         type="radio"
         name="telehealthOnly"
@@ -337,11 +337,10 @@ const ExampleForm: React.FC = () => {
               type="button"
               key={day}
               onClick={() => handleDayToggle(day)}
-              className={`px-4 py-2 rounded-md text-sm ${
-                clinicianInfo.availabilityDay?.includes(day as AvailabilityDay)
+              className={`px-4 py-2 rounded-md text-sm ${clinicianInfo.availabilityDay?.includes(day as AvailabilityDay)
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
+                }`}
             >
               {day}
             </button>
@@ -377,11 +376,10 @@ const ExampleForm: React.FC = () => {
               type="button"
               key={time}
               onClick={() => handleTimeToggle(time)}
-              className={`px-4 py-2 rounded-md text-sm ${
-                clinicianInfo.availabilityTime?.includes(time as AvailabilityTime)
+              className={`px-4 py-2 rounded-md text-sm ${clinicianInfo.availabilityTime?.includes(time as AvailabilityTime)
                   ? "bg-green-500 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
+                }`}
             >
               {time}
             </button>

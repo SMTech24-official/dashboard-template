@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     Button,
     Card,
@@ -8,12 +9,11 @@ import {
     Space,
     UploadFile
 } from 'antd';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import JoditEditor from "jodit-react";
 import { useMemo, useRef, useState } from 'react';
 import { LuSave } from 'react-icons/lu';
 import UploadImages from '../uploadImages/UploadImages';
+import { useCreateServiceMutation } from '../../Redux/apis/service.ts/serviceApi';
 
 const { TextArea } = Input;
 
@@ -21,9 +21,10 @@ const AddService = () => {
     const [form] = Form.useForm();
     const [thumbnailFileList, setThumbnailFileList] = useState<UploadFile[]>([]);
     const [iconFileList, setIconFileList] = useState<UploadFile[]>([]);
-
+    const [createService, { isLoading }] = useCreateServiceMutation();
     const editor = useRef<any>(null);
     const [content, setContent] = useState('');
+
     const config = useMemo(
         () => ({
             readonly: false,
@@ -33,24 +34,51 @@ const AddService = () => {
         []
     );
 
+
+
     const handleSave = async () => {
         try {
-            const formData = await form.validateFields(); // Validate form fields
+            const formData = await form.validateFields();
 
-            const payload = {
-                ...formData,
-                detailedDescription: content,
-                thumbnail: thumbnailFileList.length ? thumbnailFileList[0] : null,
-                icon: iconFileList.length ? iconFileList[0] : null,
-            };
+            // Create FormData object for file upload
+            const payload = new FormData();
 
-            console.log("Form Submission Data:", payload);
-            message.success('Content saved successfully!');
+            // Append text fields
+            payload.append('title', formData.title);
+            if (formData.subtitle) payload.append('subtitle', formData.subtitle);
+            payload.append('descriptions', formData.description);
+            payload.append('detailedDescription', content);
+
+            // Append files if they exist
+            if (thumbnailFileList.length > 0 && thumbnailFileList[0].originFileObj) {
+                payload.append('image', thumbnailFileList[0].originFileObj as File);
+            }
+
+            if (iconFileList.length > 0 && iconFileList[0].originFileObj) {
+                payload.append('icon', iconFileList[0].originFileObj as File);
+            }
+
+            console.log("Form Submission Data:", Object.fromEntries(payload.entries()));
+
+            // Call the mutation
+            const response = await createService(payload);
+
+            if ('data' in response) {
+                message.success('Service created successfully!');
+                form.resetFields();
+                setThumbnailFileList([]);
+                setIconFileList([]);
+                setContent('');
+            } else if ('error' in response) {
+                throw response.error;
+            }
         } catch (error) {
-            console.log(error);
-            message.error('Please fill out all required fields and try again.');
+            console.error('Error creating service:', error);
+            message.error('Failed to create service. Please try again.');
         }
     };
+
+
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -89,6 +117,7 @@ const AddService = () => {
                                     fileList={thumbnailFileList}
                                     setFileList={setThumbnailFileList}
                                     title="Upload Thumbnail Image *"
+
                                 />
 
                                 <UploadImages
@@ -106,8 +135,8 @@ const AddService = () => {
                                 ref={editor}
                                 value={content}
                                 config={config}
-                                onBlur={(newContent: any) => setContent(newContent)}
-                                onChange={(newContent: any) => setContent(newContent)}
+                                onBlur={(newContent: string) => setContent(newContent)}
+                                onChange={(newContent: string) => setContent(newContent)}
                             />
                         </Form.Item>
 
@@ -119,6 +148,7 @@ const AddService = () => {
                                     onClick={handleSave}
                                     size="large"
                                     className='bg-primary'
+                                    loading={isLoading}
                                 >
                                     Save
                                 </Button>

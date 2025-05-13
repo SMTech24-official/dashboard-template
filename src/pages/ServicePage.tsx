@@ -1,52 +1,92 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {  Modal, } from 'antd';
+import { Modal, Empty, Spin, Typography } from 'antd';
 import React, { useState } from 'react';
 import ServiceCard from '../components/service/ServiceCard';
 import { Service } from '../types/types';
-import { useDeleteServiceMutation, useGetAllServiceQuery, useUpdateServiceMutation } from '../Redux/apis/service.ts/serviceApi';
+import {
+    useDeleteServiceMutation,
+    useGetAllServiceQuery,
+    useUpdateServiceMutation
+} from '../Redux/apis/service.ts/serviceApi';
 import { toast } from 'sonner';
 
+const { Title } = Typography;
 
 const ServicesList: React.FC = () => {
-    // const [services, setServices] = useState<Service[]>(fakeTherapistServices);
     const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
-
-    const { data, isLoading } = useGetAllServiceQuery('')
-    const [updateService] = useUpdateServiceMutation()
-    const [deleteService] = useDeleteServiceMutation()
-    console.log(data?.data, 'data');
+    const { data, isLoading, isError } = useGetAllServiceQuery('');
+    const [updateService] = useUpdateServiceMutation();
+    const [deleteService] = useDeleteServiceMutation();
 
     const onEdit = async (id: string, values: Partial<Service>) => {
-        console.log(values, 'values');
         try {
-            const res = await updateService({ id, body: values })
-            console.log(res)
-            toast.message(res.data.message || 'Service updated successfully');
-            await new Promise((resolve) => setTimeout(resolve, 1000)); 
-        } catch (error) {
-            console.log(error)
+            const res = await updateService({ id, body: values });
+            if ('data' in res) {
+                toast.success(res.data.message || 'Service updated successfully');
+            } else if ('error' in res) {
+                throw res.error;
+            }
+        } catch (error: any) {
+            toast.error(error.data?.message || 'Failed to update service');
         }
     };
 
     const handleDelete = async (id: string) => {
-        console.log('Service ID to delete:', id);
         try {
-            const res = await deleteService(id)
-            console.log(res)
-            toast.success('Service deleted successfully');
+            const res = await deleteService(id);
+            if ('data' in res) {
+                toast.success('Service deleted successfully');
+                setDeletingServiceId(null);
+            } else if ('error' in res) {
+                throw res.error;
+            }
         } catch (error: any) {
-            toast.error(error.data.message || 'Failed to delete service');
+            toast.error(error.data?.message || 'Failed to delete service');
         }
     };
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Empty
+                    description={
+                        <span className="text-red-500">
+                            Failed to load services. Please try again later.
+                        </span>
+                    }
+                />
+            </div>
+        );
+    }
+
+    if (!data?.data || data.data.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64">
+                <Empty
+                    description={
+                        <Title level={4} className="text-gray-500">
+                            No services available
+                        </Title>
+                    }
+                />
+            </div>
+        );
     }
 
     return (
-        <div className="container ">
+        <div className="container mx-auto px-4">
+            <Title level={2} className="mb-6">Services</Title>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {data?.data.map((service: Service) => (
+                {data.data.map((service: Service) => (
                     <ServiceCard
                         key={service.id}
                         service={service}
@@ -56,15 +96,10 @@ const ServicesList: React.FC = () => {
                 ))}
             </div>
 
-            {/* Delete Confirmation Modal */}
             <Modal
                 title="Confirm Delete"
-                visible={!!deletingServiceId}
-                onOk={() => {
-                    if (deletingServiceId) {
-                        handleDelete(deletingServiceId);
-                    }
-                }}
+                open={!!deletingServiceId}
+                onOk={() => deletingServiceId && handleDelete(deletingServiceId)}
                 onCancel={() => setDeletingServiceId(null)}
                 okText="Delete"
                 cancelText="Cancel"
