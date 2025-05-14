@@ -58,15 +58,15 @@ export interface Clinician {
   descriptions?: string;
   about?: string;
   portfolioLink?: string;
-  therapeuticMethods: string;
-  specialities: string;
-  serviceTypes: string;
-  agesServed: string;
+  therapeuticMethods: string[];
+  specialities: string[];
+  serviceTypes: string[];
+  agesServed: string[];
   location?: string;
   latitude?: number;
   longitude?: number;
-  availabilityDay?: AvailabilityDay[];
-  availabilityTime?: AvailabilityTime[];
+  availabilityDay?: string[];
+  availabilityTime?: string[];
   telehealthOnly?: boolean;
   isCalendarConnected: boolean;
   googleRefreshToken?: string;
@@ -81,8 +81,9 @@ export interface Service {
   title: string;
   subtitle: string;
   descriptions: string;
-  icon?: string;
-  image?: string;
+  detailedDescription: string;
+  icon?: string | File;
+  image?: string | File;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -23,7 +23,7 @@ export const authApi = baseApi.injectEndpoints({
     updateService: builder.mutation({
       query: ({ id, body }) => ({
         url: `/service/update/${id}`,
-        method: "PUT",
+        method: "PATCH",
         body,
       }),
       invalidatesTags: ["Service"],
