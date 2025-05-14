@@ -62,7 +62,7 @@ export const cliniciansData: Clinician[] = [
     agesServed: ["Adults", "Teens"],
     location: "New York, NY",
     availabilityDay: "Monday-Friday",
-    availabilityTime: "9am-5pm",
+    availabilityTime: ["9am-5pm"],
     telehealthOnly: false,
     createdAt: new Date("2020-01-15"),
     updatedAt: new Date("2023-05-20"),
