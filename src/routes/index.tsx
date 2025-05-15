@@ -12,6 +12,10 @@ import AddBlogs from "../components/blog/AddBlogs";
 import BlogDetails from "../pages/BlogDetails";
 import LocationManagement from "../components/location/LocationTable";
 import AddCliniciansTable from "../components/clinicians/AddCliniciansTable";
+import Clinician from "../pages/Clinician";
+import ClinicianDashboardLayout from "../components/layouts/ClinicianLayout";
+import ClinicianBookingList from "../pages/ClinicianBooking";
+import MyProfile from "../pages/MyProfile";
 
 const RouterProvider: React.FC = () => {
     return (
@@ -35,8 +39,15 @@ const RouterProvider: React.FC = () => {
                     <Route path="all-clinicians" element={<CliniciansTable />} />
                     <Route index element={<UnderConstruction name="Blog" />} />
                     <Route path="add-blog" element={<AddBlogs />} />
+                    <Route path="add-blog" element={<AddBlogs />} />
                     <Route path="blog/:id" element={<BlogDetails />} />
                     <Route path="all-blog" element={<BlogPage />} />
+                </Route>
+
+                <Route path="/clinician" element={<ClinicianDashboardLayout />}>
+                    <Route index={true} element={<Clinician />} />
+                    <Route path="booking-list" element={<ClinicianBookingList />} />
+                    <Route path="my-profile" element={<MyProfile />} />
                 </Route>
             </Routes>
         </Router>

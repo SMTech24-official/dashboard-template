@@ -42,6 +42,9 @@ export default function MainNavLink({
         if (cleanHref === "/admin-dashboard") {
             return cleanPathname === "/admin-dashboard";
         }
+        if (cleanHref === "/clinician") {
+            return cleanPathname === "/clinician";
+        }
 
         // Partial match for other routes
         return cleanPathname.startsWith(cleanHref);

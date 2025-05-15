@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-
 import React, { useState } from "react";
-import CustomInput from "../ui/CustomInput";
-import { AvailabilityDay, AvailabilityTime, Clinician, CustomInputEvent } from "../../types/types";
-import LocationSearch from "../map/MapSearchInbox";
-import { useCreateClinicianMutation } from "../../Redux/apis/clinician/cliniciansApi";
 import { toast } from "sonner";
+import { useCreateClinicianMutation } from "../../Redux/apis/clinician/cliniciansApi";
+import {
+  AvailabilityDay,
+  AvailabilityTime,
+  CustomInputEvent,
+} from "../../types/types";
+import LocationSearch from "../map/MapSearchInbox";
 import CustomButton from "../ui/CustomButton";
+import CustomInput from "../ui/CustomInput";
 
 const DAY_OPTIONS = [
   "Monday",
@@ -32,7 +35,7 @@ const TIME_OPTIONS = [
 const ExampleForm: React.FC = () => {
   const [createClinician, { isLoading: createClinicianLoading }] =
     useCreateClinicianMutation();
-  const [clinicianInfo, setClinicianInfo] = useState<Partial<Clinician>>({
+  const [clinicianInfo, setClinicianInfo] = useState<any>({
     name: "",
     email: "",
     password: "",
@@ -76,7 +79,7 @@ const ExampleForm: React.FC = () => {
 
   const handleClinicianInfoChange = (event: CustomInputEvent) => {
     const { name, value } = event.target;
-    setClinicianInfo((prev) => ({
+    setClinicianInfo((prev: any) => ({
       ...prev,
       [name]: value,
     }));
@@ -130,16 +133,20 @@ const ExampleForm: React.FC = () => {
   };
 
   const removeDay = (day: string) => {
-    setClinicianInfo((prev) => ({
+    setClinicianInfo((prev: any) => ({
       ...prev,
-      availabilityDay: (prev.availabilityDay || []).filter((d) => d !== day),
+      availabilityDay: (prev.availabilityDay || []).filter(
+        (d: any) => d !== day
+      ),
     }));
   };
 
   const removeTime = (time: string) => {
-    setClinicianInfo((prev) => ({
+    setClinicianInfo((prev: any) => ({
       ...prev,
-      availabilityTime: (prev.availabilityTime || []).filter((t) => t !== time),
+      availabilityTime: (prev.availabilityTime || []).filter(
+        (t: any) => t !== time
+      ),
     }));
   };
 
@@ -163,7 +170,6 @@ const ExampleForm: React.FC = () => {
       ...clinicianInfo,
       telehealthOnly: convertTelehealth(clinicianInfo?.telehealthOnly),
     };
-
 
     formData.append("bodyData", JSON.stringify(processedInfo));
 
@@ -315,7 +321,7 @@ const ExampleForm: React.FC = () => {
           Availability Days
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
-          {clinicianInfo.availabilityDay?.map((day) => (
+          {clinicianInfo.availabilityDay?.map((day: any) => (
             <div
               key={day}
               className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
@@ -337,10 +343,11 @@ const ExampleForm: React.FC = () => {
               type="button"
               key={day}
               onClick={() => handleDayToggle(day)}
-              className={`px-4 py-2 rounded-md text-sm ${clinicianInfo.availabilityDay?.includes(day as AvailabilityDay)
+              className={`px-4 py-2 rounded-md text-sm ${
+                clinicianInfo.availabilityDay?.includes(day as AvailabilityDay)
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                }`}
+              }`}
             >
               {day}
             </button>
@@ -354,7 +361,7 @@ const ExampleForm: React.FC = () => {
           Availability Times
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
-          {clinicianInfo.availabilityTime?.map((time) => (
+          {clinicianInfo.availabilityTime?.map((time: any) => (
             <div
               key={time}
               className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
@@ -376,10 +383,13 @@ const ExampleForm: React.FC = () => {
               type="button"
               key={time}
               onClick={() => handleTimeToggle(time)}
-              className={`px-4 py-2 rounded-md text-sm ${clinicianInfo.availabilityTime?.includes(time as AvailabilityTime)
+              className={`px-4 py-2 rounded-md text-sm ${
+                clinicianInfo.availabilityTime?.includes(
+                  time as AvailabilityTime
+                )
                   ? "bg-green-500 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                }`}
+              }`}
             >
               {time}
             </button>
