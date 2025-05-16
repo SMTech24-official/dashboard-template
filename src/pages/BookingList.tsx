@@ -1,27 +1,37 @@
+import { format } from 'date-fns';
 import { useState } from "react";
 import BookingListTable from "../components/booking/table/Bookingtable";
 import { Modal } from "../components/modal/Modal";
-import { format } from 'date-fns';
+import { useGetAllAdminBookingQuery } from "../Redux/apis/booking/bookingApi";
 
 
 interface Booking {
     id: string;
     clinicianId: string;
-    date: Date;
-    startTime: Date;
-    endTime: Date;
+    googleEventId?: string;  // Optional as it might not always be present
+    date: string | Date;     // Can be string (from API) or Date (after parsing)
+    startTime: string | Date;
+    endTime: string | Date;
     userName: string;
     phoneNumber: string;
     userEmail: string;
     message: string;
-    createdAt: Date;
-    updatedAt: Date;
-    clinician?: { // Optional nested clinician data
+    timeZone: string;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    clinician?: {
+        id: string;
         name: string;
+        email: string;
+        image?: string;     // Optional profile image URL
     };
 }
 const BookingList = () => {
+
+    const { data: bookingData, isLoading } = useGetAllAdminBookingQuery(undefined)
     const [modalData, setModalData] = useState<Booking | null>(null);
+
+    console.log(bookingData?.data);
 
     const handleView = (record: Booking) => {
         console.log('Viewing record:', record);
@@ -29,71 +39,118 @@ const BookingList = () => {
         // Add your view logic here (e.g., open modal, navigate to detail page)
     };
 
-    const calculateDuration = (start: Date, end: Date) => {
-        const diff = end.getTime() - start.getTime();
-        const minutes = Math.floor(diff / 60000);
-        return `${minutes} Min`;
-    };
+    // const calculateDuration = (start: Date, end: Date) => {
+    //     const diff = Math.abs(end.getTime() - start.getTime()); // safe for any order
+    //     const minutes = Math.floor(diff / 60000);
+    //     return `${minutes} Min`;
+    // };
+
+
+
+    if (isLoading) {
+        return <p>Loading</p>
+    }
 
     return (
         <div>
             <BookingListTable
-                data={data}
+                data={bookingData?.data}
                 onView={handleView}
             />
             {
                 <Modal isOpen={!!modalData} onClose={() => setModalData(null)}>
                     {modalData && (
                         <div className="p-6">
-                            <h1 className="text-2xl font-semibold mb-8">Booking Details</h1>
+                            <div className="flex items-start justify-between mb-8">
+                                <h1 className="text-2xl font-semibold">Booking Details</h1>
+                                {modalData.clinician?.image && (
+                                    <img
+                                        src={modalData.clinician.image}
+                                        alt={modalData.clinician.name}
+                                        className="w-12 h-12 rounded-full object-cover"
+                                    />
+                                )}
+                            </div>
+
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
                                     <div className="text-gray-600">User name</div>
-                                    <div>{modalData.userName}</div>
+                                    <div className="font-medium">{modalData.userName}</div>
                                 </div>
 
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
                                     <div className="text-gray-600">Phone Number</div>
-                                    <div>{modalData.phoneNumber}</div>
+                                    <div className="font-medium">
+                                        <a href={`tel:${modalData.phoneNumber}`} className="hover:underline">
+                                            {modalData.phoneNumber}
+                                        </a>
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
                                     <div className="text-gray-600">Email</div>
-                                    <div>{modalData.userEmail}</div>
+                                    <div className="font-medium">
+                                        <a href={`mailto:${modalData.userEmail}`} className="hover:underline">
+                                            {modalData.userEmail}
+                                        </a>
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
                                     <div className="text-gray-600">Message</div>
-                                    <div className="text-right max-w-md">
-                                        {modalData.message}
+                                    <div className="text-right max-w-md font-medium">
+                                        {modalData.message || "No message provided"}
                                     </div>
                                 </div>
 
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
                                     <div className="text-gray-600">Date</div>
-                                    <div>{format(modalData.date, 'MMMM d, yyyy')}</div>
-                                </div>
-
-                                <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
-                                    <div className="text-gray-600">Time Slot</div>
-                                    <div>
-                                        {format(modalData.startTime, 'h:mm a')} - {format(modalData.endTime, 'h:mm a')}
+                                    <div className="font-medium">
+                                        {format(new Date(modalData.date), 'MMMM d, yyyy')}
                                     </div>
                                 </div>
 
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
-                                    <div className="text-gray-600">Therapist Name</div>
-                                    <div>{modalData.clinician?.name || 'Not assigned'}</div>
+                                    <div className="text-gray-600">Time Slot</div>
+                                    <div className="font-medium">
+                                        {format(new Date(modalData.startTime), 'h:mm a')} - {format(new Date(modalData.endTime), 'h:mm a')}
+                                        <span className="ml-2 text-sm text-gray-500">
+                                            ({modalData.timeZone.replace('_', ' ')})
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
+                                    <div className="text-gray-600">Therapist</div>
+                                    <div className="font-medium">
+                                        {modalData.clinician?.name || 'Not assigned'}
+                                        {modalData.clinician?.email && (
+                                            <div className="text-sm text-gray-500">
+                                                <a href={`mailto:${modalData.clinician.email}`} className="hover:underline">
+                                                    {modalData.clinician.email}
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
                                     <div className="text-gray-600">Therapy Duration</div>
-                                    <div>{calculateDuration(modalData.startTime, modalData.endTime)}</div>
+                                    {/* <div className="font-medium">
+                                        {calculateDuration(modalData.startTime as Date, modalData.endTime as Date)}
+                                    </div> */}
+                                </div>
+
+                                <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
+                                    <div className="text-gray-600">Booking Created</div>
+                                    <div className="font-medium">
+                                        {format(new Date(modalData.createdAt), 'MMMM d, yyyy h:mm a')}
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-between items-center lg:gap-40 gap-20 py-4 border-b border-gray-200">
                                     <div className="text-gray-600">Session Type</div>
-                                    <div>Telehealth Only</div>
+                                    <div className="font-medium">Telehealth Only</div>
                                 </div>
                             </div>
 
@@ -104,9 +161,15 @@ const BookingList = () => {
                                 >
                                     CLOSE
                                 </button>
-                                <button className="bg-[#5B9B7B] text-white px-6 py-2 rounded-lg hover:bg-[#4a8a6a] transition-colors">
+                                {/* <button
+                                    className="bg-[#5B9B7B] text-white px-6 py-2 rounded-lg hover:bg-[#4a8a6a] transition-colors"
+                                    onClick={() => {
+                                        // Add your cancel booking logic here
+                                        console.log('Canceling booking:', modalData.id);
+                                    }}
+                                >
                                     CANCEL BOOKING
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     )}
@@ -117,519 +180,3 @@ const BookingList = () => {
 };
 
 export default BookingList;
-
-
-
-// Sample data
-const data = [
-    {
-        id: "507f1f77bcf86cd799439011",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-15"),
-        startTime: new Date("2023-06-15T09:00:00"),
-        endTime: new Date("2023-06-15T10:00:00"),
-        userName: "John Smith",
-        phoneNumber: "+1 555-123-4567",
-        userEmail: "john.smith@example.com",
-        message: "I need help with anxiety management",
-        createdAt: new Date("2023-06-01T08:30:00"),
-        updatedAt: new Date("2023-06-01T08:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439012",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-16"),
-        startTime: new Date("2023-06-16T14:00:00"),
-        endTime: new Date("2023-06-16T15:00:00"),
-        userName: "Emily Davis",
-        phoneNumber: "+1 555-234-5678",
-        userEmail: "emily.davis@example.com",
-        message: "Marriage counseling session requested",
-        createdAt: new Date("2023-06-02T10:15:00"),
-        updatedAt: new Date("2023-06-02T10:15:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439013",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4569",
-        date: new Date("2023-06-17"),
-        startTime: new Date("2023-06-17T11:00:00"),
-        endTime: new Date("2023-06-17T12:00:00"),
-        userName: "Robert Wilson",
-        phoneNumber: "+1 555-345-6789",
-        userEmail: "robert.wilson@example.com",
-        message: "Looking for depression therapy options",
-        createdAt: new Date("2023-06-03T14:45:00"),
-        updatedAt: new Date("2023-06-03T14:45:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4569",
-            name: "Dr. Amanda Lee"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439014",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-18"),
-        startTime: new Date("2023-06-18T13:00:00"),
-        endTime: new Date("2023-06-18T14:00:00"),
-        userName: "Jessica Brown",
-        phoneNumber: "+1 555-456-7890",
-        userEmail: "jessica.brown@example.com",
-        message: "Need help with stress management techniques",
-        createdAt: new Date("2023-06-04T09:20:00"),
-        updatedAt: new Date("2023-06-04T09:20:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439015",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-19"),
-        startTime: new Date("2023-06-19T10:00:00"),
-        endTime: new Date("2023-06-19T11:00:00"),
-        userName: "David Taylor",
-        phoneNumber: "+1 555-567-8901",
-        userEmail: "david.taylor@example.com",
-        message: "Couples therapy appointment request",
-        createdAt: new Date("2023-06-05T16:30:00"),
-        updatedAt: new Date("2023-06-05T16:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439011",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-15"),
-        startTime: new Date("2023-06-15T09:00:00"),
-        endTime: new Date("2023-06-15T10:00:00"),
-        userName: "John Smith",
-        phoneNumber: "+1 555-123-4567",
-        userEmail: "john.smith@example.com",
-        message: "I need help with anxiety management",
-        createdAt: new Date("2023-06-01T08:30:00"),
-        updatedAt: new Date("2023-06-01T08:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439012",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-16"),
-        startTime: new Date("2023-06-16T14:00:00"),
-        endTime: new Date("2023-06-16T15:00:00"),
-        userName: "Emily Davis",
-        phoneNumber: "+1 555-234-5678",
-        userEmail: "emily.davis@example.com",
-        message: "Marriage counseling session requested",
-        createdAt: new Date("2023-06-02T10:15:00"),
-        updatedAt: new Date("2023-06-02T10:15:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439013",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4569",
-        date: new Date("2023-06-17"),
-        startTime: new Date("2023-06-17T11:00:00"),
-        endTime: new Date("2023-06-17T12:00:00"),
-        userName: "Robert Wilson",
-        phoneNumber: "+1 555-345-6789",
-        userEmail: "robert.wilson@example.com",
-        message: "Looking for depression therapy options",
-        createdAt: new Date("2023-06-03T14:45:00"),
-        updatedAt: new Date("2023-06-03T14:45:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4569",
-            name: "Dr. Amanda Lee"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439014",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-18"),
-        startTime: new Date("2023-06-18T13:00:00"),
-        endTime: new Date("2023-06-18T14:00:00"),
-        userName: "Jessica Brown",
-        phoneNumber: "+1 555-456-7890",
-        userEmail: "jessica.brown@example.com",
-        message: "Need help with stress management techniques",
-        createdAt: new Date("2023-06-04T09:20:00"),
-        updatedAt: new Date("2023-06-04T09:20:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439015",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-19"),
-        startTime: new Date("2023-06-19T10:00:00"),
-        endTime: new Date("2023-06-19T11:00:00"),
-        userName: "David Taylor",
-        phoneNumber: "+1 555-567-8901",
-        userEmail: "david.taylor@example.com",
-        message: "Couples therapy appointment request",
-        createdAt: new Date("2023-06-05T16:30:00"),
-        updatedAt: new Date("2023-06-05T16:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439011",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-15"),
-        startTime: new Date("2023-06-15T09:00:00"),
-        endTime: new Date("2023-06-15T10:00:00"),
-        userName: "John Smith",
-        phoneNumber: "+1 555-123-4567",
-        userEmail: "john.smith@example.com",
-        message: "I need help with anxiety management",
-        createdAt: new Date("2023-06-01T08:30:00"),
-        updatedAt: new Date("2023-06-01T08:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439012",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-16"),
-        startTime: new Date("2023-06-16T14:00:00"),
-        endTime: new Date("2023-06-16T15:00:00"),
-        userName: "Emily Davis",
-        phoneNumber: "+1 555-234-5678",
-        userEmail: "emily.davis@example.com",
-        message: "Marriage counseling session requested",
-        createdAt: new Date("2023-06-02T10:15:00"),
-        updatedAt: new Date("2023-06-02T10:15:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439013",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4569",
-        date: new Date("2023-06-17"),
-        startTime: new Date("2023-06-17T11:00:00"),
-        endTime: new Date("2023-06-17T12:00:00"),
-        userName: "Robert Wilson",
-        phoneNumber: "+1 555-345-6789",
-        userEmail: "robert.wilson@example.com",
-        message: "Looking for depression therapy options",
-        createdAt: new Date("2023-06-03T14:45:00"),
-        updatedAt: new Date("2023-06-03T14:45:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4569",
-            name: "Dr. Amanda Lee"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439014",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-18"),
-        startTime: new Date("2023-06-18T13:00:00"),
-        endTime: new Date("2023-06-18T14:00:00"),
-        userName: "Jessica Brown",
-        phoneNumber: "+1 555-456-7890",
-        userEmail: "jessica.brown@example.com",
-        message: "Need help with stress management techniques",
-        createdAt: new Date("2023-06-04T09:20:00"),
-        updatedAt: new Date("2023-06-04T09:20:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439015",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-19"),
-        startTime: new Date("2023-06-19T10:00:00"),
-        endTime: new Date("2023-06-19T11:00:00"),
-        userName: "David Taylor",
-        phoneNumber: "+1 555-567-8901",
-        userEmail: "david.taylor@example.com",
-        message: "Couples therapy appointment request",
-        createdAt: new Date("2023-06-05T16:30:00"),
-        updatedAt: new Date("2023-06-05T16:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439011",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-15"),
-        startTime: new Date("2023-06-15T09:00:00"),
-        endTime: new Date("2023-06-15T10:00:00"),
-        userName: "John Smith",
-        phoneNumber: "+1 555-123-4567",
-        userEmail: "john.smith@example.com",
-        message: "I need help with anxiety management",
-        createdAt: new Date("2023-06-01T08:30:00"),
-        updatedAt: new Date("2023-06-01T08:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439012",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-16"),
-        startTime: new Date("2023-06-16T14:00:00"),
-        endTime: new Date("2023-06-16T15:00:00"),
-        userName: "Emily Davis",
-        phoneNumber: "+1 555-234-5678",
-        userEmail: "emily.davis@example.com",
-        message: "Marriage counseling session requested",
-        createdAt: new Date("2023-06-02T10:15:00"),
-        updatedAt: new Date("2023-06-02T10:15:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439013",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4569",
-        date: new Date("2023-06-17"),
-        startTime: new Date("2023-06-17T11:00:00"),
-        endTime: new Date("2023-06-17T12:00:00"),
-        userName: "Robert Wilson",
-        phoneNumber: "+1 555-345-6789",
-        userEmail: "robert.wilson@example.com",
-        message: "Looking for depression therapy options",
-        createdAt: new Date("2023-06-03T14:45:00"),
-        updatedAt: new Date("2023-06-03T14:45:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4569",
-            name: "Dr. Amanda Lee"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439014",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-18"),
-        startTime: new Date("2023-06-18T13:00:00"),
-        endTime: new Date("2023-06-18T14:00:00"),
-        userName: "Jessica Brown",
-        phoneNumber: "+1 555-456-7890",
-        userEmail: "jessica.brown@example.com",
-        message: "Need help with stress management techniques",
-        createdAt: new Date("2023-06-04T09:20:00"),
-        updatedAt: new Date("2023-06-04T09:20:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439015",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-19"),
-        startTime: new Date("2023-06-19T10:00:00"),
-        endTime: new Date("2023-06-19T11:00:00"),
-        userName: "David Taylor",
-        phoneNumber: "+1 555-567-8901",
-        userEmail: "david.taylor@example.com",
-        message: "Couples therapy appointment request",
-        createdAt: new Date("2023-06-05T16:30:00"),
-        updatedAt: new Date("2023-06-05T16:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439011",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-15"),
-        startTime: new Date("2023-06-15T09:00:00"),
-        endTime: new Date("2023-06-15T10:00:00"),
-        userName: "John Smith",
-        phoneNumber: "+1 555-123-4567",
-        userEmail: "john.smith@example.com",
-        message: "I need help with anxiety management",
-        createdAt: new Date("2023-06-01T08:30:00"),
-        updatedAt: new Date("2023-06-01T08:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439012",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-16"),
-        startTime: new Date("2023-06-16T14:00:00"),
-        endTime: new Date("2023-06-16T15:00:00"),
-        userName: "Emily Davis",
-        phoneNumber: "+1 555-234-5678",
-        userEmail: "emily.davis@example.com",
-        message: "Marriage counseling session requested",
-        createdAt: new Date("2023-06-02T10:15:00"),
-        updatedAt: new Date("2023-06-02T10:15:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439013",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4569",
-        date: new Date("2023-06-17"),
-        startTime: new Date("2023-06-17T11:00:00"),
-        endTime: new Date("2023-06-17T12:00:00"),
-        userName: "Robert Wilson",
-        phoneNumber: "+1 555-345-6789",
-        userEmail: "robert.wilson@example.com",
-        message: "Looking for depression therapy options",
-        createdAt: new Date("2023-06-03T14:45:00"),
-        updatedAt: new Date("2023-06-03T14:45:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4569",
-            name: "Dr. Amanda Lee"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439014",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-18"),
-        startTime: new Date("2023-06-18T13:00:00"),
-        endTime: new Date("2023-06-18T14:00:00"),
-        userName: "Jessica Brown",
-        phoneNumber: "+1 555-456-7890",
-        userEmail: "jessica.brown@example.com",
-        message: "Need help with stress management techniques",
-        createdAt: new Date("2023-06-04T09:20:00"),
-        updatedAt: new Date("2023-06-04T09:20:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439015",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-19"),
-        startTime: new Date("2023-06-19T10:00:00"),
-        endTime: new Date("2023-06-19T11:00:00"),
-        userName: "David Taylor",
-        phoneNumber: "+1 555-567-8901",
-        userEmail: "david.taylor@example.com",
-        message: "Couples therapy appointment request",
-        createdAt: new Date("2023-06-05T16:30:00"),
-        updatedAt: new Date("2023-06-05T16:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439011",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-15"),
-        startTime: new Date("2023-06-15T09:00:00"),
-        endTime: new Date("2023-06-15T10:00:00"),
-        userName: "John Smith",
-        phoneNumber: "+1 555-123-4567",
-        userEmail: "john.smith@example.com",
-        message: "I need help with anxiety management",
-        createdAt: new Date("2023-06-01T08:30:00"),
-        updatedAt: new Date("2023-06-01T08:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439012",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-16"),
-        startTime: new Date("2023-06-16T14:00:00"),
-        endTime: new Date("2023-06-16T15:00:00"),
-        userName: "Emily Davis",
-        phoneNumber: "+1 555-234-5678",
-        userEmail: "emily.davis@example.com",
-        message: "Marriage counseling session requested",
-        createdAt: new Date("2023-06-02T10:15:00"),
-        updatedAt: new Date("2023-06-02T10:15:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439013",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4569",
-        date: new Date("2023-06-17"),
-        startTime: new Date("2023-06-17T11:00:00"),
-        endTime: new Date("2023-06-17T12:00:00"),
-        userName: "Robert Wilson",
-        phoneNumber: "+1 555-345-6789",
-        userEmail: "robert.wilson@example.com",
-        message: "Looking for depression therapy options",
-        createdAt: new Date("2023-06-03T14:45:00"),
-        updatedAt: new Date("2023-06-03T14:45:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4569",
-            name: "Dr. Amanda Lee"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439014",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4567",
-        date: new Date("2023-06-18"),
-        startTime: new Date("2023-06-18T13:00:00"),
-        endTime: new Date("2023-06-18T14:00:00"),
-        userName: "Jessica Brown",
-        phoneNumber: "+1 555-456-7890",
-        userEmail: "jessica.brown@example.com",
-        message: "Need help with stress management techniques",
-        createdAt: new Date("2023-06-04T09:20:00"),
-        updatedAt: new Date("2023-06-04T09:20:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4567",
-            name: "Dr. Sarah Johnson"
-        }
-    },
-    {
-        id: "507f1f77bcf86cd799439015",
-        clinicianId: "5e7ac8f0b4879d5a1c8b4568",
-        date: new Date("2023-06-19"),
-        startTime: new Date("2023-06-19T10:00:00"),
-        endTime: new Date("2023-06-19T11:00:00"),
-        userName: "David Taylor",
-        phoneNumber: "+1 555-567-8901",
-        userEmail: "david.taylor@example.com",
-        message: "Couples therapy appointment request",
-        createdAt: new Date("2023-06-05T16:30:00"),
-        updatedAt: new Date("2023-06-05T16:30:00"),
-        clinician: {
-            id: "5e7ac8f0b4879d5a1c8b4568",
-            name: "Dr. Michael Chen"
-        }
-    }
-];

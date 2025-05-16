@@ -132,10 +132,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         onCancel={handleCancelEdit}
         width={700}
         footer={[
-          <Button key="back" onClick={handleCancelEdit}>
+          <Button className="!hidden" key="back" onClick={handleCancelEdit}>
             Cancel
           </Button>,
-          <Button key="submit" type="primary" onClick={handleSave}>
+          <Button className="!hidden" key="submit" type="primary" onClick={handleSave}>
             Save Changes
           </Button>,
         ]}

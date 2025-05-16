@@ -1,20 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CalendarOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 import { useState } from 'react';
+import { useConnectAccountMutation, useGetAccountStatusQuery } from '../../Redux/apis/calender/calender';
+import { useAppSelector } from '../../Redux/hook';
+import { selectCurrentUser } from '../../Redux/slice/auth/authSlice';
 
 const ConnectCalendarCard = () => {
     const [loading, setLoading] = useState(false);
-    const [isConnected, setIsConnected] = useState(true); // Assume false initially
+    const user = useAppSelector(selectCurrentUser);
+    const { data: statusData } = useGetAccountStatusQuery(user?.id);
+    const [connectAccount] = useConnectAccountMutation();
+
+    const isConnected = statusData?.data?.isCalendarConnected || false;
 
     const handleConnectCalendar = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/get-auth-url');
-            if (!response.ok) throw new Error('Failed to get authorization URL');
-            const { url } = await response.json();
-            window.location.href = url;
-            // In a real app, you would check connection status from your backend
-            // setIsConnected(true) would be set after successful OAuth flow
+            const response: any = await connectAccount(user?.id);
+            if (response.data?.success) {
+                window.location.href = response.data.data; // Redirect to the OAuth URL
+            } else {
+                throw new Error('Failed to get authorization URL');
+            }
         } catch (error) {
             console.error('Connection failed:', error);
             message.error('Failed to connect to Google Calendar. Please try again.');
@@ -24,7 +32,7 @@ const ConnectCalendarCard = () => {
 
     const handleDisconnect = () => {
         // Add your disconnect logic here
-        setIsConnected(false);
+        // You'll need to implement an API call to disconnect the calendar
         message.success('Google Calendar disconnected successfully');
     };
 
@@ -43,12 +51,10 @@ const ConnectCalendarCard = () => {
                             </div>
                             <Button
                                 onClick={handleDisconnect}
-                            // className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-medium py-2 px-4 rounded-md transition-colors"
                             >
                                 Disconnect
                             </Button>
                         </div>
-
                     </>
                 ) : (
                     <>
@@ -62,8 +68,8 @@ const ConnectCalendarCard = () => {
                             </div>
                             <Button
                                 onClick={handleConnectCalendar}
+                                loading={loading}
                                 disabled={loading}
-                            // className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
                             >
                                 {loading ? 'Connecting...' : 'Connect Calendar'}
                             </Button>

@@ -58,9 +58,15 @@ export default function SignInPage() {
                 Cookies.set('token', response?.data.accessToken)
                 const decodedUser = jwtDecode(response.data.accessToken as string) as { role: string };
                 console.log(decodedUser, 'decodedUser');
-                dispatch(setUser({ user:decodedUser, token: response.data.accessToken })); // Store user in Redux
+                dispatch(setUser({ user: decodedUser, token: response.data.accessToken })); // Store user in Redux
                 toast.success(`Welcome ${decodedUser.role} Dashboard!`);
-                navigate("/dashboard")
+                if (decodedUser.role === "CLINICIAN") {
+                    navigate("/clinician")
+                }
+                else {
+
+                    navigate("/dashboard")
+                }
             }
 
             // toast.success("User Logged In Succes")
@@ -71,7 +77,7 @@ export default function SignInPage() {
         } finally {
             setIsLoading(false)
         }
-        
+
     };
 
     const togglePasswordVisibility = () => {

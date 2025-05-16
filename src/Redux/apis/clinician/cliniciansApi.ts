@@ -46,4 +46,5 @@ export const {
   useGetAllClinicianQuery,
   useUpdateClinicianMutation,
   useDeleteClinicianMutation,
+  useGetClinicianByIdQuery,
 } = clinicianApi;

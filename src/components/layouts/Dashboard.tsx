@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CiFolderOn, CiLocationOn } from 'react-icons/ci';
+import { CiFolderOn } from 'react-icons/ci';
 import { GiNewspaper, GiStethoscope } from 'react-icons/gi';
 import { GoPlus } from 'react-icons/go';
 import { IoPeopleOutline } from 'react-icons/io5';
@@ -52,15 +52,15 @@ const DashboardLayout = () => {
                 { name: 'All Services', href: '/dashboard/all-service', icon: CiFolderOn },
             ]
         },
-        {
-            name: 'Locations',
-            href: '/dashboard/locations',
-            icon: CiLocationOn,
-            // subItems: [
-            //     { name: 'Add Location', href: '/dashboard/add-location', icon: MdOutlineAddLocationAlt },
-            //     { name: 'All Location', href: '/dashboard/all-location', icon: GrMapLocation },
-            // ]
-        },
+        // {
+        //     name: 'Locations',
+        //     href: '/dashboard/locations',
+        //     icon: CiLocationOn,
+        //     // subItems: [
+        //     //     { name: 'Add Location', href: '/dashboard/add-location', icon: MdOutlineAddLocationAlt },
+        //     //     { name: 'All Location', href: '/dashboard/all-location', icon: GrMapLocation },
+        //     // ]
+        // },
         // {
         //     name: 'Team',
         //     href: '/dashboard/team',

@@ -6,17 +6,22 @@ import { format } from 'date-fns';
 interface Booking {
     id: string;
     clinicianId: string;
-    date: Date;
-    startTime: Date;
-    endTime: Date;
+    googleEventId?: string;  // Optional as it might not always be present
+    date: string | Date;     // Can be string (from API) or Date (after parsing)
+    startTime: string | Date;
+    endTime: string | Date;
     userName: string;
     phoneNumber: string;
     userEmail: string;
     message: string;
-    createdAt: Date;
-    updatedAt: Date;
-    clinician?: { // Optional nested clinician data
+    timeZone: string;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    clinician?: {
+        id: string;
         name: string;
+        email: string;
+        image?: string;     // Optional profile image URL
     };
 }
 
@@ -29,14 +34,9 @@ interface BookingListTableProps {
 const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView, loading }) => {
     const columns: ColumnsType<Booking> = [
         {
-            title: 'User Name',
+            title: 'User',
             dataIndex: 'userName',
             key: 'userName',
-        },
-        {
-            title: 'Phone Number',
-            dataIndex: 'phoneNumber',
-            key: 'phoneNumber',
         },
         {
             title: 'Email',
@@ -44,66 +44,37 @@ const BookingListTable: React.FC<BookingListTableProps> = ({ data, onView, loadi
             key: 'userEmail',
         },
         {
-            title: 'Message',
-            dataIndex: 'message',
-            key: 'message',
-            render: (text) => (
-                <div className="max-w-xs truncate" title={text}>
-                    {text}
-                </div>
-            ),
+            title: 'Phone',
+            dataIndex: 'phoneNumber',
+            key: 'phoneNumber',
         },
         {
             title: 'Date',
             dataIndex: 'date',
             key: 'date',
-            render: (date: Date) => format(date, 'MMM dd, yyyy'),
-            sorter: (a, b) => a.date.getTime() - b.date.getTime(),
+            render: (value) => format(new Date(value), 'PP'),
         },
         {
-            title: 'Time Slot',
-            key: 'timeSlot',
+            title: 'Time',
+            key: 'time',
             render: (_, record) => (
-                <span>
-                    {format(record.startTime, 'hh:mm a')} - {format(record.endTime, 'hh:mm a')}
-                </span>
+                <>
+                    {format(new Date(record.startTime), 'p')} - {format(new Date(record.endTime), 'p')}
+                </>
             ),
         },
         {
-            title: 'Therapist',
-            key: 'therapistName',
-            render: (_, record) => record.clinician?.name || 'N/A',
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            fixed: 'right',
-            width: 100,
+            title: 'Actions',
+            key: 'actions',
             render: (_, record) => (
-                <Button
-                    type="text"
-                    icon={<EyeOutlined />}
-                    onClick={() => onView?.(record)}
-                    className="text-primary hover:text-primary/80"
-                >
+                <Button icon={<EyeOutlined />} onClick={() => onView?.(record)}>
                     View
                 </Button>
             ),
         },
     ];
 
-    return (
-        <div className="p-4 bg-white rounded-lg shadow-md">
-            <Table
-                columns={columns}
-                dataSource={data.map(item => ({ ...item, key: item.id }))}
-                pagination={{ pageSize: 10 }}
-                scroll={{ x: 'max-content' }}
-                className="custom-table"
-                loading={loading}
-            />
-        </div>
-    );
+    return <Table rowKey="id" columns={columns} dataSource={data} loading={loading} />;
 };
 
-export default BookingListTable;
+export default BookingListTable
