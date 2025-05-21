@@ -168,6 +168,10 @@ const BlogTable = ({
       key: "descriptions",
       ellipsis: true,
       width: 300,
+      render: (descriptions: string) => <p
+        className="text-gray-700 text-sm"
+        dangerouslySetInnerHTML={{ __html: descriptions }}
+      ></p>,
     },
     {
       title: "Created",

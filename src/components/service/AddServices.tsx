@@ -46,8 +46,8 @@ const AddService = () => {
             // Append text fields
             payload.append('title', formData.title);
             if (formData.subtitle) payload.append('subtitle', formData.subtitle);
-            payload.append('descriptions', formData.description);
-            payload.append('detailedDescription', content);
+            // payload.append('descriptions', formData.description);
+            payload.append('descriptions', content);
 
             // Append files if they exist
             if (thumbnailFileList.length > 0 && thumbnailFileList[0].originFileObj) {

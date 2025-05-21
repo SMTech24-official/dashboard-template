@@ -120,7 +120,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               <p className="text-sm text-gray-600">{service?.subtitle}</p>
             </div>
           </div>
-          <p className="text-gray-700 text-sm">{service?.descriptions}</p>
+          <p
+            className="text-gray-700 text-sm"
+            dangerouslySetInnerHTML={{ __html: service?.descriptions }}
+          ></p>
+
         </div>
       </Card>
 
