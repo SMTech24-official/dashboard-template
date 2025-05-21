@@ -31,6 +31,22 @@ export const calenderApi = baseApi.injectEndpoints({
       },
       providesTags: ["Calender"],
     }),
+    getCallback: builder.query({
+      query: (params: { code?: string | null; scope?: string | null }) => {
+        const queryParams = new URLSearchParams();
+
+        if (params?.code) queryParams.append("code", params.code);
+        if (params?.scope) queryParams.append("scope", params.scope);
+
+        return {
+          url: `/calender/callback${
+            queryParams.toString() ? `?${queryParams.toString()}` : ""
+          }`,
+          method: "GET",
+        };
+      },
+      providesTags: ["Calender"],
+    }),
   }),
 });
 
@@ -38,4 +54,5 @@ export const {
   useConnectAccountMutation,
   useGetAccountStatusQuery,
   useGetProfileQuery,
+  useGetCallbackQuery,
 } = calenderApi;

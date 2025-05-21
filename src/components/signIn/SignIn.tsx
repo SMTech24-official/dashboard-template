@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { zodResolver } from "@hookform/resolvers/zod";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { LuEye, LuEyeOff } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as z from "zod";
 import { useLoginMutation } from "../../Redux/apis/auth/authApi";
 import { useAppDispatch } from "../../Redux/hook";
 import { setUser } from "../../Redux/slice/auth/authSlice";
-import Cookies from "js-cookie"
-import { jwtDecode } from "jwt-decode";
+import { useGetCallbackQuery } from "../../Redux/apis/calender/calender";
 
 // Define Zod schema for validation
 const formSchema = z.object({
@@ -30,6 +31,25 @@ export default function SignInPage() {
     const navigate = useNavigate()
     const [login] = useLoginMutation()
     const dispatch = useAppDispatch()
+
+
+    const location = useLocation();
+
+    // This will parse the query string
+    const queryParams = new URLSearchParams(location.search);
+    const code = queryParams.get('code');
+    const scope = queryParams.get('scope');
+
+    console.log(code, scope);
+    const { data: callback } = useGetCallbackQuery(
+        {
+            code: code,  // your code value
+            scope: scope // your scope value
+        },
+        {
+            skip: !code || !scope // Skip if either code or scope is missing
+        }
+    );
 
     // Use React Hook Form with Zod resolver
     const {
@@ -57,6 +77,9 @@ export default function SignInPage() {
             if (response?.data.accessToken) {
                 Cookies.set('token', response?.data.accessToken)
                 const decodedUser = jwtDecode(response.data.accessToken as string) as { role: string };
+                if (code && scope) {
+                    console.log(code, scope, callback);
+                }
                 console.log(decodedUser, 'decodedUser');
                 dispatch(setUser({ user: decodedUser, token: response.data.accessToken })); // Store user in Redux
                 toast.success(`Welcome ${decodedUser.role} Dashboard!`);
